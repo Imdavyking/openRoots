@@ -1,0 +1,105 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - 3100:3100
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+    secrets:
+      - NODE_ENV
+      - PORT
+      - FRONTEND_URL
+      - JWT_SECRET
+      - PINATA_JWT
+      - DATASET_CONTRACT_ADDRESS
+      - LIT_PROTOCOL_IDENTIFIER
+      - PRIVATE_KEY
+      - RPC_URL
+      - BLOCKLOCK_SENDER_PROXY
+    environment:
+      - FRONTEND_URL=http://localhost:3000
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 3000:3000
+    networks:
+      - app-network
+    env_file:
+      - ./frontend/.env
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - 6379:6379
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    networks:
+      - app-network
+    volumes:
+      - mongodb-data:/data/db
+    command: mongod --quiet --logpath /dev/null
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+secrets:
+  NODE_ENV:
+    file: ./backend/secrets/NODE_ENV
+  PORT:
+    file: ./backend/secrets/PORT
+  FRONTEND_URL:
+    file: ./backend/secrets/FRONTEND_URL
+  JWT_SECRET:
+    file: ./backend/secrets/JWT_SECRET
+  PINATA_JWT:
+    file: ./backend/secrets/PINATA_JWT
+  DATASET_CONTRACT_ADDRESS:
+    file: ./backend/secrets/DATASET_CONTRACT_ADDRESS
+  LIT_PROTOCOL_IDENTIFIER:
+    file: ./backend/secrets/LIT_PROTOCOL_IDENTIFIER
+  PRIVATE_KEY:
+    file: ./backend/secrets/PRIVATE_KEY
+  RPC_URL:
+    file: ./backend/secrets/RPC_URL
+  BLOCKLOCK_SENDER_PROXY:
+    file: ./backend/secrets/BLOCKLOCK_SENDER_PROXY
+
+volumes:
+  mongodb-data:
+  redis-data:
