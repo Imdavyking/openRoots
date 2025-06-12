@@ -111,8 +111,7 @@ export default function UploadNow() {
       setError("");
 
       setPreviewRows(preview); // set this state and display below the file input
-      const { cid, datasetId, signature, randMuCiphertext, blockHeight } =
-        response.data;
+      const { cid, datasetId, signature, blockHeight } = response.data;
       const saveDatasetCidResult = await saveDatasetCid({
         cid,
         datasetId,
@@ -122,7 +121,6 @@ export default function UploadNow() {
         preview:
           typeof preview === "string" ? preview : JSON.stringify(preview),
         title: file.name,
-        randMuCiphertext,
         blockHeight,
       });
       rethrowFailedResponse(saveDatasetCidResult);

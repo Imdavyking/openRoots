@@ -25,10 +25,6 @@
     "typescript": ">=4.5.0"
   },
   "dependencies": {
-    "@lit-protocol/contracts-sdk": "^7.1.0",
-    "@lit-protocol/encryption": "^7.1.0",
-    "@lit-protocol/lit-node-client": "^7.1.0",
-    "blocklock-js": "^0.0.8-rc1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

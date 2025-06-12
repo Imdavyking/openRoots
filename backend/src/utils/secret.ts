@@ -26,8 +26,6 @@ export const secret: {
       "PORT",
       "FRONTEND_URL",
       "PINATA_JWT",
-      "DATASET_CONTRACT_ADDRESS",
-      "LIT_PROTOCOL_IDENTIFIER",
       "PRIVATE_KEY",
       "RPC_URL",
       "BLOCKLOCK_SENDER_PROXY",
