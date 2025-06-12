@@ -6,14 +6,19 @@ import {
   CURRENCY_NAME,
   DATASET_CONTRACT_ADDRESS,
   RPC_URL,
+  SPGNFTContractAddress,
   TOMO_CLIENT_ID,
   WALLET_CONNECT_PROJECT_ID,
 } from "../utils/constants";
+import { http } from "viem";
+import { StoryClient } from "@story-protocol/core-sdk";
 import { BrowserProvider, ethers } from "ethers";
 import datasetAbi from "../assets/json/dataset.abi.json";
 import { Onboard } from "@tomo-inc/tomo-evm-kit";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { storyAeneid } from "wagmi/chains";
+import { createHash } from "crypto";
+import { IpMetadata } from "@story-protocol/core-sdk";
 
 const failedKey = "FAILED-";
 
@@ -182,6 +187,15 @@ export const getDatasetContract = async () => {
   );
 };
 
+const getStoryClient = async () => {
+  const signer = await getSigner();
+  return StoryClient.newClient({
+    account: signer as any,
+    transport: http(storyAeneid.rpcUrls.default.http[0]),
+    chainId: "aeneid",
+  });
+};
+
 export const saveDatasetCid = async ({
   datasetId,
   cid,
@@ -204,39 +218,83 @@ export const saveDatasetCid = async ({
   blockHeight: number;
 }) => {
   try {
-    const datasetContract = await getDatasetContract();
+    const client = await getStoryClient();
+    const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
+      title: "Midnight Marriage",
+      description: "This is a house-style song generated on suno.",
+      createdAt: "1740005219",
+      creators: [
+        {
+          name: "Jacob Tucker",
+          address: "0xA2f9Cf1E40D7b03aB81e34BC50f0A8c67B4e9112",
+          contributionPercent: 100,
+        },
+      ],
+      image:
+        "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
+      imageHash:
+        "0xc404730cdcdf7e5e54e8f16bc6687f97c6578a296f4a21b452d8a6ecabd61bcc",
+      mediaUrl: "https://cdn1.suno.ai/dcd3076f-3aa5-400b-ba5d-87d30f27c311.mp3",
+      mediaHash:
+        "0xb52a44f53b2485ba772bd4857a443e1fb942cf5dda73c870e2d2238ecd607aee",
+      mediaType: "audio/mpeg",
+    });
 
-    if (!datasetContract) {
-      console.error("Failed to get dataset contract");
-      return;
-    }
+    const nftMetadata = {
+      name: "Midnight Marriage",
+      description:
+        "This is a house-style song generated on suno. This NFT represents ownership of the IP Asset.",
+      image:
+        "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
+      animation_url:
+        "https://cdn1.suno.ai/dcd3076f-3aa5-400b-ba5d-87d30f27c311.mp3",
+      attributes: [
+        {
+          key: "Suno Artist",
+          value: "amazedneurofunk956",
+        },
+        {
+          key: "Artist ID",
+          value: "4123743b-8ba6-4028-a965-75b79a3ad424",
+        },
+        {
+          key: "Source",
+          value: "Suno.com",
+        },
+      ],
+    };
 
-    if (randMuCiphertext) {
-      const transaction = await datasetContract.uploadEncryptedDataset(
-        datasetId,
-        ethers.parseEther(price.toString()),
-        category,
-        preview,
-        title,
-        signature,
-        blockHeight,
-        randMuCiphertext
-      );
-      const receipt = await transaction.wait(1);
-      return `Uploaded Encrypted dataset with tx hash: ${receipt.transactionHash}`;
-    }
+    // 3. Upload your IP and NFT Metadata to IPFS
+    const ipIpfsHash = await uploadJSONToIPFS(ipMetadata);
+    const ipHash = createHash("sha256")
+      .update(JSON.stringify(ipMetadata))
+      .digest("hex");
+    const nftIpfsHash = await uploadJSONToIPFS(nftMetadata);
+    const nftHash = createHash("sha256")
+      .update(JSON.stringify(nftMetadata))
+      .digest("hex");
 
-    const transaction = await datasetContract.uploadDataset(
-      datasetId,
-      cid,
-      ethers.parseEther(price.toString()),
-      category,
-      preview,
-      title,
-      signature
-    );
-    const receipt = await transaction.wait(1);
-    return `Uploaded dataset with tx hash: ${receipt.transactionHash}`;
+    // 4. Register the NFT as an IP Asset
+    //
+    // Docs: https://docs.story.foundation/sdk-reference/ip-asset#mintandregisterip
+    const response = await client.ipAsset.mintAndRegisterIpAssetWithPilTerms({
+      spgNftContract: SPGNFTContractAddress,
+      licenseTermsData: [
+        {
+          terms: createCommercialRemixTerms({
+            defaultMintingFee: 1,
+            commercialRevShare: 5,
+          }),
+        },
+      ],
+      ipMetadata: {
+        ipMetadataURI: `https://ipfs.io/ipfs/${ipIpfsHash}`,
+        ipMetadataHash: `0x${ipHash}`,
+        nftMetadataURI: `https://ipfs.io/ipfs/${nftIpfsHash}`,
+        nftMetadataHash: `0x${nftHash}`,
+      },
+      txOptions: { waitForTransaction: true },
+    });
   } catch (error) {
     const parsedError = parseContractError(error, datasetMarketPlaceAbi);
     console.error("Error saving cid:", error);
