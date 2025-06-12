@@ -1,6 +1,8 @@
 import { ellipsify } from "../utils/ellipsify";
+import { useConnectModal } from "@tomo-inc/tomo-evm-kit";
 
 export default function ConnectWalletButton() {
+  const { openConnectModal } = useConnectModal();
   const account = {
     address: null,
   };
@@ -8,6 +10,7 @@ export default function ConnectWalletButton() {
   return (
     <div className="flex flex-col items-center space-y-2">
       <button
+        onClick={openConnectModal}
         className={`cursor-pointer px-6 py-2 ${
           account?.address
             ? "bg-red-600 hover:bg-red-700"

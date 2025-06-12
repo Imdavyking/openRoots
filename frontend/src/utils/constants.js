@@ -10,3 +10,6 @@ export const DATASET_CONTRACT_ADDRESS = import.meta.env
 export const LIT_PROTOCOL_IDENTIFIER = import.meta.env
   .VITE_LIT_PROTOCOL_IDENTIFIER;
 export const ML_URL = import.meta.env.VITE_ML_URL;
+export const WALLET_CONNECT_PROJECT_ID = import.meta.env
+  .VITE_WALLET_CONNECT_PROJECT_ID;
+export const TOMO_CLIENT_ID = import.meta.env.VITE_TOMO_CLIENT_ID;

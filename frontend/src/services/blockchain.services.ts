@@ -6,17 +6,16 @@ import {
   CURRENCY_NAME,
   DATASET_CONTRACT_ADDRESS,
   RPC_URL,
+  TOMO_CLIENT_ID,
+  WALLET_CONNECT_PROJECT_ID,
 } from "../utils/constants";
 import { BrowserProvider, ethers } from "ethers";
 import datasetAbi from "../assets/json/dataset.abi.json";
+import { Onboard } from "@tomo-inc/tomo-evm-kit";
+import injectedModule from "@web3-onboard/injected-wallets";
+import { storyAeneid } from "wagmi/chains";
 
 const failedKey = "FAILED-";
-
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
 
 const datasetMarketPlaceAbi = new ethers.Interface(datasetAbi);
 
@@ -132,6 +131,34 @@ function parseContractError(error: any, contractInterface: ethers.Interface) {
 }
 
 export const getSigner = async () => {
+  const injected = injectedModule();
+
+  const chains = [
+    {
+      id: storyAeneid.id,
+      token: storyAeneid.nativeCurrency.symbol,
+      label: storyAeneid.name,
+      rpcUrl: storyAeneid.rpcUrls.default.http[0],
+    },
+  ];
+
+  const appMetadata = {
+    name: "OpenRoots",
+  };
+
+  const onboard = await Onboard({
+    wallets: [injected],
+    chains,
+    appMetadata,
+    theme: "default",
+    clientId: TOMO_CLIENT_ID,
+    projectId: WALLET_CONNECT_PROJECT_ID,
+  });
+
+  const wallets = await onboard.connectWallet();
+  const currentWallet = wallets[0];
+  console.log({ currentWallet });
+  // const walletProvider = wallet.provider;
   const provider = new BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   return provider.getSigner();

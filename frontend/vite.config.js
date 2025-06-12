@@ -12,9 +12,7 @@ export default defineConfig({
     tailwindcss(),
     react(),
     nodePolyfills({
-      include: [
-        // "buffer",
-         "process", "util"],
+      include: ["process", "util"],
     }),
   ],
   define: {
@@ -34,7 +32,7 @@ export default defineConfig({
       plugins: [
         NodeGlobalsPolyfillPlugin({
           // buffer: true,
-          process: true,
+          process: false,
         }),
         NodeModulesPolyfillPlugin(),
       ],
