@@ -157,9 +157,8 @@ export const getSigner = async () => {
 
   const wallets = await onboard.connectWallet();
   const currentWallet = wallets[0];
-  console.log({ currentWallet });
-  // const walletProvider = wallet.provider;
-  const provider = new BrowserProvider(window.ethereum);
+  const walletProvider = currentWallet.provider;
+  const provider = new BrowserProvider(walletProvider);
   await provider.send("eth_requestAccounts", []);
   return provider.getSigner();
 };
