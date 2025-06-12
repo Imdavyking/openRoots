@@ -29,12 +29,11 @@ AI is only as good as the data it learns from. OpenRoots ensures:
 ## 🚀 Getting Started
 
 1. Clone the repo:
+
    ```bash
    git clone https://github.com/your-org/openroots.git
    cd openroots
    ```
-
-
 
 2. Install dependencies:
 
@@ -73,3 +72,12 @@ OpenRoots is open-source under the [MIT License](LICENSE).
 
 Made with 💚 by the OpenRoots team.
 
+<!-- Data & Search
+Build tools that register, protect, and monetize datasets leveraging Story's Group Module. Or, build IP discovery platforms to find and license IP.
+
+Examples
+Optimize search and discoverability for IP on Story
+Create indexing solutions to find IP
+AI-models that properly pay back revenue from outputs to original training data
+Story's Group Module for dataset management and monetization
+Search and select datasets to train on -->
