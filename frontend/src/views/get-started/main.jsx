@@ -6,10 +6,10 @@ const GetStarted = () => {
     <div className="min-h-screen bg-white text-gray-900 font-sans px-6 py-16">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-4xl font-bold mb-4 text-center">
-          Get Started with ProofChain AI
+          Get Started with OpenRoots AI
         </h1>
         <p className="text-lg text-center text-gray-600 mb-12">
-          Upload, discover, and monetize AI datasets securely using Filecoin &
+          Upload, discover, and monetize AI datasets securely using Story &
           IPFS.
         </p>
 
@@ -18,7 +18,7 @@ const GetStarted = () => {
           <div className="bg-gray-100 p-6 rounded-xl shadow hover:shadow-md transition">
             <h2 className="text-xl font-semibold mb-2">📁 Upload a Dataset</h2>
             <p className="text-gray-600 mb-4">
-              Store your dataset on IPFS/Filecoin and get a unique CID.
+              Store your dataset on IPFS/Story and get a unique CID.
               Provenance guaranteed.
             </p>
             <Link

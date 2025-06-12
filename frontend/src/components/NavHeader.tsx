@@ -7,10 +7,9 @@ const NavHeader = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const links = [
-    { to: "/create-loan", label: "Create" },
-    { to: "/accept-loan", label: "Accept" },
-    { to: "/pay-loan", label: "Pay" },
-    { to: "/lock-collateral", label: "Lock" },
+    { to: "/get-started", label: "Start" },
+    { to: "/upload-now", label: "Upload" },
+    { to: "/discover-dataset", label: "Discover" },
   ];
 
   const renderLinks = (isMobile = false) =>

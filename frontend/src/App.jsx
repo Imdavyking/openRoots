@@ -9,8 +9,8 @@ function App() {
   return (
     <>
       <ToastContainer />
-      <NavHeader />
       <BrowserRouter>
+        <NavHeader />
         <Router />
       </BrowserRouter>
     </>

@@ -5,9 +5,9 @@ const Home = () => {
     <div className="bg-white text-gray-900 min-h-screen font-sans">
       {/* Hero Section */}
       <header className="text-center px-6 pt-20 pb-12 bg-gradient-to-r from-purple-700 via-blue-600 to-indigo-700 text-white">
-        <h1 className="text-5xl font-bold mb-4">ProofChain AI</h1>
+        <h1 className="text-5xl font-bold mb-4">OpenRoots AI</h1>
         <p className="text-xl max-w-2xl mx-auto">
-          A decentralized AI dataset marketplace built on Filecoin — ensuring
+          A decentralized AI dataset marketplace built on Story — ensuring
           data provenance, privacy, efficiency, and fair distribution.
         </p>
         <Link
@@ -21,13 +21,13 @@ const Home = () => {
       {/* Features Section */}
       <section className="py-16 px-6">
         <h2 className="text-3xl font-bold text-center mb-12">
-          Why ProofChain AI?
+          Why OpenRoots AI?
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto text-center">
           <div>
             <h3 className="text-xl font-semibold mb-2">🧬 Data Provenance</h3>
             <p className="text-gray-600">
-              Track dataset origin with cryptographic records via IPFS/Filecoin
+              Track dataset origin with cryptographic records via IPFS/Story
               CIDs.
             </p>
           </div>
@@ -75,7 +75,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="bg-white text-center py-8 border-t text-sm text-gray-500">
-        © {new Date().getFullYear()} ProofChain AI • Built on Filecoin & IPFS
+        © {new Date().getFullYear()} OpenRoots AI • Built on Story & IPFS
       </footer>
     </div>
   );
