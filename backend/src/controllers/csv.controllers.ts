@@ -6,6 +6,7 @@ import logger from "../config/logger";
 import { ethers } from "ethers";
 import { uploadToPinata } from "../services/pinata.services";
 import io from "../utils/create.websocket";
+import { createHash } from "crypto";
 dotenv.config();
 
 // Configure multer to accept only .csv files
@@ -74,11 +75,11 @@ export const processCSVUpload = async (req: Request, res: Response) => {
       return;
     }
 
-    let cid = pinataResponse.getUrl().split("/").pop();
-
+    let ipfsUrl = pinataResponse.getUrl();
+    const csvHash = createHash("sha256").update(file.buffer).digest("hex");
     res.status(200).json({
-      cid,
-      datasetId,
+      ipfsUrl,
+      csvHash,
     });
 
     return;
