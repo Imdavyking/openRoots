@@ -26,9 +26,6 @@ export const secret: {
       "PORT",
       "FRONTEND_URL",
       "PINATA_JWT",
-      "PRIVATE_KEY",
-      "RPC_URL",
-      "BLOCKLOCK_SENDER_PROXY",
     ];
 
     const loadedSecrets: Record<string, string> = {};

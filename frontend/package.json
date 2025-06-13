@@ -23,6 +23,7 @@
     "ethers": "^6.13.5",
     "ethers-v5": "npm:ethers@^5.8.0",
     "framer-motion": "^12.6.3",
+    "html-to-image": "^1.11.13",
     "lucide-react": "^0.514.0",
     "papaparse": "^5.5.2",
     "react": "^19.0.0",

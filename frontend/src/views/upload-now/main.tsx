@@ -1,6 +1,6 @@
 "use client";
 import "viem/window";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import axios from "../../services/axios.config.services";
 import { FaSpinner } from "react-icons/fa";
 import { io } from "socket.io-client";
@@ -8,8 +8,7 @@ import { SERVER_URL } from "../../utils/constants";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
-import { custom, toHex } from "viem";
-import { useWalletClient } from "wagmi";
+import { toPng } from "html-to-image";
 import { useStory } from "../../context/AppContext";
 
 export default function UploadNow() {
@@ -19,6 +18,7 @@ export default function UploadNow() {
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
   const [preview, setPreviewRows] = useState([]);
+  const imageRef = useRef(null);
   const { txLoading, txHash, txName, client } = useStory();
 
   const handleFileChange = (e) => {
@@ -102,6 +102,9 @@ export default function UploadNow() {
         });
       });
 
+      const imageUrl = await generateImage();
+      console.log("Generated image URL:", imageUrl);
+
       setError("");
 
       setPreviewRows(preview as any); // set this state and display below the file input
@@ -114,6 +117,13 @@ export default function UploadNow() {
       setisUploading(false);
       socket.close();
     }
+  };
+
+  const generateImage = async () => {
+    if (!imageRef.current) return;
+    console.log({ ref: imageRef.current });
+    const dataUrl = await toPng(imageRef.current);
+    return dataUrl;
   };
 
   return (
@@ -166,7 +176,9 @@ export default function UploadNow() {
           <div className="mt-4 text-green-600 text-sm">{success}</div>
         )}
 
-        <CSVPreview previewRows={preview} />
+        {preview.length > 0 && (
+          <CSVPreview previewRows={preview} ref={imageRef} />
+        )}
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
