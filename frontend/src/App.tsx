@@ -30,7 +30,7 @@ function App() {
             <BrowserRouter>
               <NavHeader />
               <Router />
-            </BrowserRouter>{" "}
+            </BrowserRouter>
           </TomoEVMKitProvider>
         </QueryClientProvider>
       </WagmiProvider>

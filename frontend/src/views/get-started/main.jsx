@@ -18,8 +18,8 @@ const GetStarted = () => {
           <div className="bg-gray-100 p-6 rounded-xl shadow hover:shadow-md transition">
             <h2 className="text-xl font-semibold mb-2">📁 Upload a Dataset</h2>
             <p className="text-gray-600 mb-4">
-              Store your dataset on IPFS/Story and get a unique CID.
-              Provenance guaranteed.
+              Store your dataset on IPFS/Story and get a unique CID. Provenance
+              guaranteed.
             </p>
             <Link
               to="/upload-now"

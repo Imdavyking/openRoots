@@ -5,10 +5,6 @@ import { io } from "socket.io-client";
 import { SERVER_URL } from "../../utils/constants";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
-import {
-  rethrowFailedResponse,
-  saveDatasetCid,
-} from "../../services/blockchain.services";
 import CSVPreview from "../csv-preview/main";
 export default function UploadNow() {
   const [file, setFile] = useState(null);
@@ -16,10 +12,7 @@ export default function UploadNow() {
   const [success, setSuccess] = useState("");
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
-  const [isEncrypted, setIsEncrypted] = useState(false);
-  const [extraBlocks, setExtraBlocks] = useState(0);
   const [preview, setPreviewRows] = useState([]);
-  const [price, setPrice] = useState(0);
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
 
@@ -38,11 +31,6 @@ export default function UploadNow() {
 
   const handleUpload = async () => {
     if (!file) return;
-
-    if (!price || isNaN(price) || price <= 0) {
-      setError("Please enter a price.");
-      return;
-    }
 
     if (isUploading) {
       toast.error("Already uploading a file.");
@@ -72,8 +60,6 @@ export default function UploadNow() {
       });
       const queryParams = new URLSearchParams({
         socketId,
-        isEncrypted,
-        extraBlocks,
       });
 
       const response = await axios.post(
@@ -112,18 +98,16 @@ export default function UploadNow() {
 
       setPreviewRows(preview); // set this state and display below the file input
       const { cid, datasetId, signature, blockHeight } = response.data;
-      const saveDatasetCidResult = await saveDatasetCid({
-        cid,
-        datasetId,
-        signature,
-        price,
-        category: +category,
-        preview:
-          typeof preview === "string" ? preview : JSON.stringify(preview),
-        title: file.name,
-        blockHeight,
-      });
-      rethrowFailedResponse(saveDatasetCidResult);
+      // const saveDatasetCidResult = await saveDatasetCid({
+      //   cid,
+      //   datasetId,
+      //   signature,
+      //   category: +category,
+      //   preview:
+      //     typeof preview === "string" ? preview : JSON.stringify(preview),
+      //   title: file.name,
+      //   blockHeight,
+      // });
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
@@ -152,26 +136,6 @@ export default function UploadNow() {
                      file:bg-indigo-50 file:text-indigo-700
                      hover:file:bg-indigo-100 cursor-pointer"
         />
-
-        <div className="mt-6">
-          <label
-            htmlFor="price"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Price (in tFIL)
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            min="0"
-            step="0.01"
-            placeholder="Enter price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 p-3 text-lg"
-          />
-        </div>
 
         <div className="mt-6">
           <label
@@ -205,52 +169,6 @@ export default function UploadNow() {
         )}
 
         <CSVPreview previewRows={preview} />
-        <div className="mt-6">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">
-              Encrypt Dataset?
-            </label>
-            <button
-              onClick={() => setIsEncrypted(!isEncrypted)}
-              className={`ml-4 px-4 py-2 rounded-full font-semibold transition-all duration-200 ${
-                isEncrypted
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-300 text-gray-800"
-              }`}
-            >
-              {isEncrypted ? "ON" : "OFF"}
-            </button>
-          </div>
-          {isEncrypted && (
-            <div className="mt-4 flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
-                Extra Blocks
-              </label>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={() =>
-                    setExtraBlocks((prev) => Math.max(0, prev - 1))
-                  }
-                  className={`w-8 h-8 rounded-full ${
-                    extraBlocks === 0
-                      ? "bg-gray-300 cursor-not-allowed"
-                      : "bg-gray-400 hover:bg-gray-500"
-                  } text-lg font-bold text-white`}
-                  disabled={extraBlocks === 0}
-                >
-                  -
-                </button>
-                <span className="text-lg font-semibold">{extraBlocks}</span>
-                <button
-                  onClick={() => setExtraBlocks((prev) => prev + 1)}
-                  className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-700 text-lg font-bold text-white"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}

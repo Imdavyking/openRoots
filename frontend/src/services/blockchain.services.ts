@@ -11,7 +11,9 @@ import {
   WALLET_CONNECT_PROJECT_ID,
 } from "../utils/constants";
 import { http } from "viem";
-import { StoryClient, IpMetadata } from "@story-protocol/core-sdk";
+import { StoryClient, IpMetadata, StoryConfig } from "@story-protocol/core-sdk";
+import { custom, toHex } from "viem";
+import { useWalletClient } from "wagmi";
 import { BrowserProvider, ethers } from "ethers";
 import datasetAbi from "../assets/json/dataset.abi.json";
 import { Onboard } from "@tomo-inc/tomo-evm-kit";
@@ -186,14 +188,14 @@ export const getDatasetContract = async () => {
   );
 };
 
-const getStoryClient = async () => {
-  const signer = await getSigner();
-  return StoryClient.newClient({
-    account: signer as any,
-    transport: http(storyAeneid.rpcUrls.default.http[0]),
-    chainId: "aeneid",
-  });
-};
+// const getStoryClient = async () => {
+//   const signer = await getSigner();
+//   return StoryClient.newClient({
+//     account: signer as any,
+//     transport: http(storyAeneid.rpcUrls.default.http[0]),
+//     chainId: "aeneid",
+//   });
+// };
 
 export const saveDatasetCid = async ({
   dataSetUrl,
@@ -210,81 +212,77 @@ export const saveDatasetCid = async ({
   preview: string;
   title: string;
 }) => {
-  try {
-    const client = await getStoryClient();
-    const signer = await getSigner();
-    const address = (await signer.getAddress()) as `0x${string}`;
-    const datasetHash = dataHash as `0x${string}`;
-
-    const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
-      title: title,
-      description: preview,
-      createdAt: `${Math.trunc(new Date().getTime() / 1000)}`,
-      creators: [
-        {
-          name: creatorName,
-          address,
-          contributionPercent: 100,
-        },
-      ],
-      image:
-        "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
-      imageHash:
-        "0xc404730cdcdf7e5e54e8f16bc6687f97c6578a296f4a21b452d8a6ecabd61bcc",
-      mediaUrl: dataSetUrl,
-      mediaHash: datasetHash,
-      mediaType: "text/csv",
-    });
-
-    const nftMetadata = {
-      name: title,
-      description: preview,
-      image:
-        "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
-      attributes: [
-        {
-          key: "category",
-          value: category,
-        },
-      ],
-    };
-
-    // 3. Upload your IP and NFT Metadata to IPFS
-    // const ipIpfsHash = await uploadJSONToIPFS(ipMetadata);
-    // const ipHash = createHash("sha256")
-    //   .update(JSON.stringify(ipMetadata))
-    //   .digest("hex");
-    // const nftIpfsHash = await uploadJSONToIPFS(nftMetadata);
-    // const nftHash = createHash("sha256")
-    //   .update(JSON.stringify(nftMetadata))
-    //   .digest("hex");
-
-    // // 4. Register the NFT as an IP Asset
-    // //
-    // // Docs: https://docs.story.foundation/sdk-reference/ip-asset#mintandregisterip
-    // const response = await client.ipAsset.mintAndRegisterIpAssetWithPilTerms({
-    //   spgNftContract: SPGNFTContractAddress,
-    //   licenseTermsData: [
-    //     {
-    //       terms: createCommercialRemixTerms({
-    //         defaultMintingFee: 1,
-    //         commercialRevShare: 5,
-    //       }),
-    //     },
-    //   ],
-    //   ipMetadata: {
-    //     ipMetadataURI: `https://ipfs.io/ipfs/${ipIpfsHash}`,
-    //     ipMetadataHash: `0x${ipHash}`,
-    //     nftMetadataURI: `https://ipfs.io/ipfs/${nftIpfsHash}`,
-    //     nftMetadataHash: `0x${nftHash}`,
-    //   },
-    //   txOptions: { waitForTransaction: true },
-    // });
-  } catch (error) {
-    const parsedError = parseContractError(error, datasetMarketPlaceAbi);
-    console.error("Error saving cid:", error);
-    return `${failedKey}${parsedError?.name ?? error.message}`;
-  }
+  // try {
+  //   const client = await getStoryClient();
+  //   const signer = await getSigner();
+  //   const address = (await signer.getAddress()) as `0x${string}`;
+  //   const datasetHash = dataHash as `0x${string}`;
+  //   const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
+  //     title: title,
+  //     description: preview,
+  //     createdAt: `${Math.trunc(new Date().getTime() / 1000)}`,
+  //     creators: [
+  //       {
+  //         name: creatorName,
+  //         address,
+  //         contributionPercent: 100,
+  //       },
+  //     ],
+  //     image:
+  //       "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
+  //     imageHash:
+  //       "0xc404730cdcdf7e5e54e8f16bc6687f97c6578a296f4a21b452d8a6ecabd61bcc",
+  //     mediaUrl: dataSetUrl,
+  //     mediaHash: datasetHash,
+  //     mediaType: "text/csv",
+  //   });
+  //   const nftMetadata = {
+  //     name: title,
+  //     description: preview,
+  //     image:
+  //       "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
+  //     attributes: [
+  //       {
+  //         key: "category",
+  //         value: category,
+  //       },
+  //     ],
+  //   };
+  //   // 3. Upload your IP and NFT Metadata to IPFS
+  //   // const ipIpfsHash = await uploadJSONToIPFS(ipMetadata);
+  //   // const ipHash = createHash("sha256")
+  //   //   .update(JSON.stringify(ipMetadata))
+  //   //   .digest("hex");
+  //   // const nftIpfsHash = await uploadJSONToIPFS(nftMetadata);
+  //   // const nftHash = createHash("sha256")
+  //   //   .update(JSON.stringify(nftMetadata))
+  //   //   .digest("hex");
+  //   // // 4. Register the NFT as an IP Asset
+  //   // //
+  //   // // Docs: https://docs.story.foundation/sdk-reference/ip-asset#mintandregisterip
+  //   // const response = await client.ipAsset.mintAndRegisterIpAssetWithPilTerms({
+  //   //   spgNftContract: SPGNFTContractAddress,
+  //   //   licenseTermsData: [
+  //   //     {
+  //   //       terms: createCommercialRemixTerms({
+  //   //         defaultMintingFee: 1,
+  //   //         commercialRevShare: 5,
+  //   //       }),
+  //   //     },
+  //   //   ],
+  //   //   ipMetadata: {
+  //   //     ipMetadataURI: `https://ipfs.io/ipfs/${ipIpfsHash}`,
+  //   //     ipMetadataHash: `0x${ipHash}`,
+  //   //     nftMetadataURI: `https://ipfs.io/ipfs/${nftIpfsHash}`,
+  //   //     nftMetadataHash: `0x${nftHash}`,
+  //   //   },
+  //   //   txOptions: { waitForTransaction: true },
+  //   // });
+  // } catch (error) {
+  //   const parsedError = parseContractError(error, datasetMarketPlaceAbi);
+  //   console.error("Error saving cid:", error);
+  //   return `${failedKey}${parsedError?.name ?? error.message}`;
+  // }
 };
 
 export const getAllDatasets = async () => {

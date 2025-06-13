@@ -1,6 +1,6 @@
-import { ellipsify } from "../../utils/ellipsify";
+import { ellipsify } from "../../utils/ellipsify.ts";
 import React, { useEffect, useState } from "react";
-import CSVPreview from "../csv-preview/main";
+import CSVPreview from "../csv-preview/main.jsx";
 import * as LitJsSdk from "@lit-protocol/lit-node-client";
 import { LIT_NETWORK } from "@lit-protocol/constants";
 import {
@@ -25,7 +25,7 @@ const DatasetItem = ({ dataset }) => {
   const [isTraining, setIsTraining] = useState(false);
   const [targetColumn, setTargetColumn] = useState("");
   const [modelType, setModelType] = useState("LinearRegression");
-  const [csvData, setCsvData] = useState(null);
+  const [csvData, setCsvData] = (useState < BlobPart) | (null > null);
   const [columns, setColumns] = useState([]);
 
   const canAccessCall = async () => {
@@ -74,7 +74,6 @@ const DatasetItem = ({ dataset }) => {
           value.trim(),
         ])
       );
-
       const predict = await axiosRequest.post(`${ML_URL}/predict`, {
         dataset_id: dataset.id,
         input_data: trimmedInputRow,
@@ -135,27 +134,7 @@ const DatasetItem = ({ dataset }) => {
         dataToEncryptHash,
       });
       const { capacityDelegationAuthSig } = sessionResponse.data;
-      const { sessionSigs } = await getSignatureSession({
-        capacityDelegationAuthSig,
-      });
 
-      const decryptedString = await decryptToString(
-        {
-          ciphertext,
-          sessionSigs,
-          evmContractConditions,
-          chain: LIT_PROTOCOL_IDENTIFIER,
-          dataToEncryptHash,
-        },
-        litNodeClient
-      );
-
-      setCsvData(decryptedString);
-      const rows = decryptedString.split("\n");
-      console.log(`Rows: ${rows[0]}`);
-      const columns = rows[0].split(",");
-      console.log(`Columns: ${columns}`);
-      setColumns(columns);
       rethrowFailedResponse(response);
       toast.success("Download started!");
       setCanAccessDataset(true);
@@ -174,7 +153,7 @@ const DatasetItem = ({ dataset }) => {
       setIsLoading(true);
 
       const response = await purchaseAccess(dataset.id);
-      rethrowFailedResponse(response);
+
       toast.success("Access purchased successfully!");
       setCanAccessDataset(true);
     } catch (error) {
@@ -289,7 +268,7 @@ const DatasetItem = ({ dataset }) => {
               </div>
 
               <button
-                onClick={() => trainAndPredict({ targetColumn, modelType })}
+                onClick={() => trainAndPredict()}
                 className="mt-4 w-full py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
                 disabled={!targetColumn || isTraining}
               >

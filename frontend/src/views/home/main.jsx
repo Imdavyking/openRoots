@@ -7,8 +7,8 @@ const Home = () => {
       <header className="text-center px-6 pt-20 pb-12 bg-gradient-to-r from-purple-700 via-blue-600 to-indigo-700 text-white">
         <h1 className="text-5xl font-bold mb-4">OpenRoots AI</h1>
         <p className="text-xl max-w-2xl mx-auto">
-          A decentralized AI dataset marketplace built on Story — ensuring
-          data provenance, privacy, efficiency, and fair distribution.
+          A decentralized AI dataset marketplace built on Story — ensuring data
+          provenance, privacy, efficiency, and fair distribution.
         </p>
         <Link
           to="/get-started"

@@ -1,7 +1,7 @@
 import { useRoutes } from "react-router-dom";
 import Home from "../views/home/main";
 import GetStarted from "../views/get-started/main";
-import NotFound from "../views/not-found/main";
+import NotFound from "../views/not-found/main.jsx";
 import UploadNow from "../views/upload-now/main";
 import DiscoverDataset from "../views/discover-dataset/main";
 function Router() {
