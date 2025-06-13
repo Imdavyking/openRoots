@@ -11,7 +11,6 @@ import {
   WALLET_CONNECT_PROJECT_ID,
 } from "../utils/constants";
 import { http } from "viem";
-import { StoryClient, IpMetadata, StoryConfig } from "@story-protocol/core-sdk";
 import { custom, toHex } from "viem";
 import { useWalletClient } from "wagmi";
 import { BrowserProvider, ethers } from "ethers";
@@ -137,34 +136,7 @@ function parseContractError(error: any, contractInterface: ethers.Interface) {
 }
 
 export const getSigner = async () => {
-  const injected = injectedModule();
-
-  const chains = [
-    {
-      id: storyAeneid.id,
-      token: storyAeneid.nativeCurrency.symbol,
-      label: storyAeneid.name,
-      rpcUrl: storyAeneid.rpcUrls.default.http[0],
-    },
-  ];
-
-  const appMetadata = {
-    name: "OpenRoots",
-  };
-
-  const onboard = await Onboard({
-    wallets: [injected],
-    chains,
-    appMetadata,
-    theme: "default",
-    clientId: TOMO_CLIENT_ID,
-    projectId: WALLET_CONNECT_PROJECT_ID,
-  });
-
-  const wallets = await onboard.connectWallet();
-  const currentWallet = wallets[0];
-  const walletProvider = currentWallet.provider;
-  const provider = new BrowserProvider(walletProvider);
+  const provider = new BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   return provider.getSigner();
 };
@@ -187,15 +159,6 @@ export const getDatasetContract = async () => {
     signer
   );
 };
-
-// const getStoryClient = async () => {
-//   const signer = await getSigner();
-//   return StoryClient.newClient({
-//     account: signer as any,
-//     transport: http(storyAeneid.rpcUrls.default.http[0]),
-//     chainId: "aeneid",
-//   });
-// };
 
 export const saveDatasetCid = async ({
   dataSetUrl,

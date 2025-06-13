@@ -19,15 +19,15 @@ export default function UploadNow() {
   const [preview, setPreviewRows] = useState([]);
   const { data: wallet } = useWalletClient();
 
-  async function setupStoryClient(): Promise<StoryClient> {
-    const config: StoryConfig = {
-      wallet: wallet,
-      transport: custom(wallet!.transport),
-      chainId: "aeneid",
-    };
-    const client = StoryClient.newClient(config);
-    return client;
-  }
+  // async function setupStoryClient(): Promise<StoryClient> {
+  //   const config: StoryConfig = {
+  //     wallet: wallet,
+  //     transport: custom(wallet!.transport),
+  //     chainId: "aeneid",
+  //   };
+  //   const client = StoryClient.newClient(config);
+  //   return client;
+  // }
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
 
@@ -114,30 +114,7 @@ export default function UploadNow() {
       setPreviewRows(preview as any); // set this state and display below the file input
       const { cid, datasetId, signature, blockHeight } = response.data;
 
-      const client = await setupStoryClient();
-      const ipResponse = await client.ipAsset.mintAndRegisterIp({
-        spgNftContract: "0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc",
-        ipMetadata: {
-          ipMetadataURI: "test-metadata-uri",
-          ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
-          nftMetadataURI: "test-nft-metadata-uri",
-          nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
-        },
-      });
-
-      console.log(
-        `Root IPA created at tx hash ${ipResponse.txHash}, IPA ID: ${ipResponse.ipId}`
-      );
-      // const saveDatasetCidResult = await saveDatasetCid({
-      //   cid,
-      //   datasetId,
-      //   signature,
-      //   category: +category,
-      //   preview:
-      //     typeof preview === "string" ? preview : JSON.stringify(preview),
-      //   title: file.name,
-      //   blockHeight,
-      // });
+      // const client = await setupStoryClient();
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");

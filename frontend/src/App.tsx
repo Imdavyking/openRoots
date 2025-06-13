@@ -6,9 +6,9 @@ import { ToastContainer } from "react-toastify";
 import NavHeader from "./components/NavHeader";
 import { getDefaultConfig, TomoEVMKitProvider } from "@tomo-inc/tomo-evm-kit";
 import { WagmiProvider } from "wagmi";
-import { storyAeneid } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { TOMO_CLIENT_ID, WALLET_CONNECT_PROJECT_ID } from "./utils/constants";
+import { storyAeneid } from "wagmi/chains";
 
 const config = getDefaultConfig({
   clientId: TOMO_CLIENT_ID,
