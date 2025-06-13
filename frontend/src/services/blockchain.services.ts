@@ -136,7 +136,34 @@ function parseContractError(error: any, contractInterface: ethers.Interface) {
 }
 
 export const getSigner = async () => {
-  const provider = new BrowserProvider(window.ethereum);
+  const injected = injectedModule();
+
+  const chains = [
+    {
+      id: storyAeneid.id,
+      token: storyAeneid.nativeCurrency.symbol,
+      label: storyAeneid.name,
+      rpcUrl: storyAeneid.rpcUrls.default.http[0],
+    },
+  ];
+
+  const appMetadata = {
+    name: "OpenRoots",
+  };
+
+  const onboard = await Onboard({
+    wallets: [injected],
+    chains,
+    appMetadata,
+    theme: "default",
+    clientId: TOMO_CLIENT_ID,
+    projectId: WALLET_CONNECT_PROJECT_ID,
+  });
+
+  const wallets = await onboard.connectWallet();
+  const currentWallet = wallets[0];
+  const walletProvider = currentWallet.provider;
+  const provider = new BrowserProvider(walletProvider);
   await provider.send("eth_requestAccounts", []);
   return provider.getSigner();
 };

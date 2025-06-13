@@ -1,8 +1,7 @@
 import { ellipsify } from "../../utils/ellipsify.ts";
 import React, { useEffect, useState } from "react";
 import CSVPreview from "../csv-preview/main.jsx";
-import * as LitJsSdk from "@lit-protocol/lit-node-client";
-import { LIT_NETWORK } from "@lit-protocol/constants";
+
 import {
   canAccess,
   purchaseAccess,
@@ -15,7 +14,6 @@ import axiosRequest, { AxiosError } from "axios";
 import { signDataSetId } from "../../services/dataset.signature.services.ts";
 import { LIT_PROTOCOL_IDENTIFIER, ML_URL } from "../../utils/constants.js";
 import { getSignatureSession } from "../../services/get.session.services.ts";
-import { encryptString, decryptToString } from "@lit-protocol/encryption";
 
 const DatasetItem = ({ dataset }) => {
   const [canAccessDataset, setCanAccessDataset] = useState(false);
@@ -117,11 +115,6 @@ const DatasetItem = ({ dataset }) => {
       const { ciphertext, dataToEncryptHash, evmContractConditions } =
         fetchResult.data;
 
-      const litNodeClient = new LitJsSdk.LitNodeClient({
-        litNetwork: LIT_NETWORK.DatilTest,
-        debug: false,
-      });
-      await litNodeClient.connect();
       const message = dataset.id;
       const signature = await signDataSetId(message);
 

@@ -1,3 +1,5 @@
+"use client";
+import "viem/window";
 import { useState } from "react";
 import axios from "../../services/axios.config.services";
 import { FaSpinner } from "react-icons/fa";
@@ -28,6 +30,7 @@ export default function UploadNow() {
     const client = StoryClient.newClient(config);
     return client;
   }
+
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
 
@@ -114,7 +117,7 @@ export default function UploadNow() {
       setPreviewRows(preview as any); // set this state and display below the file input
       const { cid, datasetId, signature, blockHeight } = response.data;
 
-      // const client = await setupStoryClient();
+      const client = await setupStoryClient();
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
