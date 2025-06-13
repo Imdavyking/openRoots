@@ -9,6 +9,7 @@ import { WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { TOMO_CLIENT_ID, WALLET_CONNECT_PROJECT_ID } from "./utils/constants";
 import { storyAeneid } from "wagmi/chains";
+import AppProvider from "./context/AppContext";
 
 const config = getDefaultConfig({
   clientId: TOMO_CLIENT_ID,
@@ -22,19 +23,19 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <>
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <TomoEVMKitProvider>
-            <ToastContainer />
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <TomoEVMKitProvider>
+          <ToastContainer />
+          <AppProvider>
             <BrowserRouter>
               <NavHeader />
               <Router />
             </BrowserRouter>
-          </TomoEVMKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </>
+          </AppProvider>
+        </TomoEVMKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
