@@ -25,7 +25,7 @@ const DatasetItem = ({ dataset }) => {
   const [isTraining, setIsTraining] = useState(false);
   const [targetColumn, setTargetColumn] = useState("");
   const [modelType, setModelType] = useState("LinearRegression");
-  const [csvData, setCsvData] = (useState < BlobPart) | (null > null);
+  const [csvData, setCsvData] = useState<BlobPart | null>(null);
   const [columns, setColumns] = useState([]);
 
   const canAccessCall = async () => {
@@ -71,7 +71,7 @@ const DatasetItem = ({ dataset }) => {
       const trimmedInputRow = Object.fromEntries(
         Object.entries(inputRow).map(([key, value]) => [
           key.trim(),
-          value.trim(),
+          (value as string).trim(),
         ])
       );
       const predict = await axiosRequest.post(`${ML_URL}/predict`, {
@@ -95,7 +95,7 @@ const DatasetItem = ({ dataset }) => {
   };
 
   const downloadCSV = async () => {
-    const blob = new Blob([csvData], { type: "text/plain" });
+    const blob = new Blob([csvData!], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");

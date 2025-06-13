@@ -21,7 +21,7 @@ function CSVPreview({ previewRows }) {
                   <tr key={i}>
                     {Object.values(row).map((cell, j) => (
                       <td key={j} className="px-2 py-1 border-b">
-                        {cell}
+                        {cell as any}
                       </td>
                     ))}
                   </tr>

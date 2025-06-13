@@ -15,8 +15,27 @@ function DiscoverDataset() {
     rating: "",
   });
   const categories = ["Finance", "Medicine", "Text"];
-  const [datasets, setDatasets] = useState([]);
-  const [filteredDatasets, setFilteredDatasets] = useState([]);
+  type Dataset = {
+    creator: string;
+    cid: string;
+    priceIntFIL: string;
+    starsTotal: number;
+    starsCount: number;
+    rating: number;
+    downloads: number;
+    createdAt: number;
+    createdAtReadable: string;
+    category: string;
+    name: string;
+    description: string;
+    preview: string;
+    id: string;
+    verified: boolean;
+    decryptionBlockNumber: number;
+  };
+
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
+  const [filteredDatasets, setFilteredDatasets] = useState<Dataset[]>([]);
   const getUserDatasets = async () => {
     try {
       setIsGettingDatasets(true);

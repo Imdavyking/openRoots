@@ -6,13 +6,28 @@ import { SERVER_URL } from "../../utils/constants";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
+import { custom, toHex } from "viem";
+import { useWalletClient } from "wagmi";
+import { StoryClient, StoryConfig } from "@story-protocol/core-sdk";
+
 export default function UploadNow() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
   const [preview, setPreviewRows] = useState([]);
+  const { data: wallet } = useWalletClient();
+
+  async function setupStoryClient(): Promise<StoryClient> {
+    const config: StoryConfig = {
+      wallet: wallet,
+      transport: custom(wallet!.transport),
+      chainId: "aeneid",
+    };
+    const client = StoryClient.newClient(config);
+    return client;
+  }
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
 
@@ -77,13 +92,13 @@ export default function UploadNow() {
           header: true,
           complete: (results) => {
             const allRows = results.data.filter(
-              (row) => Object.keys(row).length > 0
+              (row) => Object.keys(row as any).length > 0
             );
             const preview = [];
 
             for (let i = 0; i < 3; i++) {
               const randomIndex = Math.floor(Math.random() * allRows.length);
-              preview.push(allRows[randomIndex]);
+              preview.push(allRows[randomIndex] as never);
             }
 
             resolve(preview);
@@ -96,8 +111,23 @@ export default function UploadNow() {
 
       setError("");
 
-      setPreviewRows(preview); // set this state and display below the file input
+      setPreviewRows(preview as any); // set this state and display below the file input
       const { cid, datasetId, signature, blockHeight } = response.data;
+
+      const client = await setupStoryClient();
+      const ipResponse = await client.ipAsset.mintAndRegisterIp({
+        spgNftContract: "0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc",
+        ipMetadata: {
+          ipMetadataURI: "test-metadata-uri",
+          ipMetadataHash: toHex("test-metadata-hash", { size: 32 }),
+          nftMetadataURI: "test-nft-metadata-uri",
+          nftMetadataHash: toHex("test-nft-metadata-hash", { size: 32 }),
+        },
+      });
+
+      console.log(
+        `Root IPA created at tx hash ${ipResponse.txHash}, IPA ID: ${ipResponse.ipId}`
+      );
       // const saveDatasetCidResult = await saveDatasetCid({
       //   cid,
       //   datasetId,
