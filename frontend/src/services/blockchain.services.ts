@@ -92,23 +92,6 @@ export async function switchOrAddChain(
           ]);
           console.log(`Added and switched to ${targetChainId}`);
         }
-
-        // if (targetChainId === Number(CHAIN_ID)) {
-        //   await ethProvider.provider.send("wallet_addEthereumChain", [
-        //     {
-        //       chainId: chainIdHex,
-        //       chainName: CHAIN_NAME,
-        //       nativeCurrency: {
-        //         name: CURRENCY_NAME,
-        //         symbol: CHAIN_SYMBOL,
-        //         decimals: 18,
-        //       },
-        //       rpcUrls: [RPC_URL],
-        //       blockExplorerUrls: [BLOCK_EXPLORER_URL],
-        //     },
-        //   ]);
-        //   console.log(`${CHAIN_NAME} added and switched`);
-        // }
       } else {
         console.error(`Failed to switch to ${targetChainId}:`, error);
       }
@@ -207,37 +190,7 @@ export const saveDatasetCid = async ({
   //   const signer = await getSigner();
   //   const address = (await signer.getAddress()) as `0x${string}`;
   //   const datasetHash = dataHash as `0x${string}`;
-  //   const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
-  //     title: title,
-  //     description: preview,
-  //     createdAt: `${Math.trunc(new Date().getTime() / 1000)}`,
-  //     creators: [
-  //       {
-  //         name: creatorName,
-  //         address,
-  //         contributionPercent: 100,
-  //       },
-  //     ],
-  //     image:
-  //       "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
-  //     imageHash:
-  //       "0xc404730cdcdf7e5e54e8f16bc6687f97c6578a296f4a21b452d8a6ecabd61bcc",
-  //     mediaUrl: dataSetUrl,
-  //     mediaHash: datasetHash,
-  //     mediaType: "text/csv",
-  //   });
-  //   const nftMetadata = {
-  //     name: title,
-  //     description: preview,
-  //     image:
-  //       "https://cdn2.suno.ai/image_large_8bcba6bc-3f60-4921-b148-f32a59086a4c.jpeg",
-  //     attributes: [
-  //       {
-  //         key: "category",
-  //         value: category,
-  //       },
-  //     ],
-  //   };
+  
   //   // 3. Upload your IP and NFT Metadata to IPFS
   //   // const ipIpfsHash = await uploadJSONToIPFS(ipMetadata);
   //   // const ipHash = createHash("sha256")

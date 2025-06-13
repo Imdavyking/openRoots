@@ -4,12 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import axios from "../../services/axios.config.services";
 import { FaSpinner } from "react-icons/fa";
 import { io } from "socket.io-client";
-import { SERVER_URL } from "../../utils/constants";
+import { SERVER_URL, SPGNFTContractAddress } from "../../utils/constants";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
 import { toPng } from "html-to-image";
 import { useStory } from "../../context/AppContext";
+import { data } from "react-router-dom";
+import { IpMetadata } from "@story-protocol/core-sdk";
+import { useWalletClient } from "wagmi";
 
 export default function UploadNow() {
   const [file, setFile] = useState<File | null>(null);
@@ -17,9 +20,19 @@ export default function UploadNow() {
   const [success, setSuccess] = useState("");
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
-  const [csvPreview, setPreviewRows] = useState([]);
+  const [csvPreviewRows, setCsvPreviewRows] = useState([]);
+  const [csvImage, setCsvImage] = useState<string | null>(null);
+  const [csvImageHash, setCsvImageHash] = useState<string | null>(null);
+  const [creatorName, setCreatorName] = useState("");
   const imageRef = useRef(null);
+  const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
+
+  enum Category {
+    Finance = "0",
+    Medicine = "1",
+    Text = "2",
+  }
 
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
@@ -37,40 +50,49 @@ export default function UploadNow() {
     setSuccess("");
   };
 
+  const previewImages = async () => {
+    if (!file) return;
+    const preview = await new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        complete: (results) => {
+          const allRows = results.data.filter(
+            (row) => Object.keys(row as any).length > 0
+          );
+          const preview = [];
+
+          for (let i = 0; i < 3; i++) {
+            const randomIndex = Math.floor(Math.random() * allRows.length);
+            preview.push(allRows[randomIndex] as never);
+          }
+
+          resolve(preview);
+        },
+        error: (error) => {
+          reject(error);
+        },
+      });
+    });
+    setCsvPreviewRows(preview as any);
+  };
+
   useEffect(() => {
     if (!file) return;
-    const previewImages = async () => {
-      const preview = await new Promise((resolve, reject) => {
-        Papa.parse(file, {
-          header: true,
-          complete: (results) => {
-            const allRows = results.data.filter(
-              (row) => Object.keys(row as any).length > 0
-            );
-            const preview = [];
-
-            for (let i = 0; i < 3; i++) {
-              const randomIndex = Math.floor(Math.random() * allRows.length);
-              preview.push(allRows[randomIndex] as never);
-            }
-
-            resolve(preview);
-          },
-          error: (error) => {
-            reject(error);
-          },
-        });
-      });
-      setPreviewRows(preview as any);
-      const imageUrl = await generateImage();
-      console.log("Generated image URL:", imageUrl);
-    };
 
     previewImages();
   }, [file]);
 
+  useEffect(() => {
+    generateImage();
+  }, [csvPreviewRows]);
+
   const handleUpload = async () => {
     if (!file) return;
+
+    if (!creatorName.trim()) {
+      toast.error("Please enter the creator's name.");
+      return;
+    }
 
     if (isUploading) {
       toast.error("Already uploading a file.");
@@ -82,8 +104,9 @@ export default function UploadNow() {
     const socket = io(SERVER_URL);
 
     try {
+      previewImages();
       setisUploading(true);
-      setPreviewRows([]);
+      setCsvPreviewRows([]);
       setError("");
       setSuccess("");
 
@@ -115,6 +138,77 @@ export default function UploadNow() {
       setError("");
 
       const { ipfsUrl, csvHash } = response.data;
+
+      if (typeof client === "undefined") {
+        setError("❌ Client is not initialized. Please try again.");
+        return;
+      }
+
+      const result = await client.groupClient.registerGroup({
+        groupPool: "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89",
+      });
+
+      const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
+        title: file.name,
+        description:
+          typeof csvPreviewRows === "string"
+            ? csvPreviewRows
+            : JSON.stringify(csvPreviewRows),
+        createdAt: `${Math.trunc(new Date().getTime() / 1000)}`,
+        creators: [
+          {
+            name: creatorName,
+            address: (wallet?.account?.address as `0x${string}`) || "",
+            contributionPercent: 100,
+          },
+        ],
+        image: csvImage!,
+        imageHash: csvImageHash as `0x${string}`,
+        mediaUrl: ipfsUrl,
+        mediaHash: csvHash,
+        mediaType: "text/csv",
+      });
+      const nftMetadata = {
+        name: file.name,
+        description:
+          typeof csvPreviewRows === "string"
+            ? csvPreviewRows
+            : JSON.stringify(csvPreviewRows),
+        image: csvImage!,
+        attributes: [
+          {
+            key: "category",
+            value:
+              Object.keys(Category).find(
+                (key) => Category[key as keyof typeof Category] === category
+              ) || "Unknown",
+          },
+        ],
+      };
+
+      console.log("IP Metadata:", ipMetadata);
+      console.log("NFT Metadata:", nftMetadata);
+
+      return;
+
+      // await client.groupClient.mintAndRegisterIpAndAttachLicenseAndAddToGroup({
+      //   spgNftContract: SPGNFTContractAddress,
+      //   groupId: result.groupId!,
+      //   licenseData: [
+      //     {
+      //       licenseTermsId: 1,
+      //     },
+      //   ],
+      //   maxAllowedRewardShare: 100,
+      //   ipMetadata: {
+      //     ipMetadataURI: "ipfs://your-dataset-metadata.json",
+      //     ipMetadataHash: csvHash,
+      //     nftMetadataURI: "ipfs://your-nft-metadata.json",
+      //     nftMetadataHash: "0xnftHash",
+      //   },
+      // });
+
+      console.log("Group registered:", result);
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
@@ -125,11 +219,39 @@ export default function UploadNow() {
     }
   };
 
+  async function sha256Hash(bytes: Uint8Array): Promise<string> {
+    const hashBuffer = await crypto.subtle.digest("SHA-256", bytes);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    return `0x${hashHex}`;
+  }
+
+  function base64ToBytes(base64: string): Uint8Array {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
   const generateImage = async () => {
     if (!imageRef.current) return;
-    console.log({ ref: imageRef.current });
+
+    // 1. Generate PNG Data URL from DOM node
     const dataUrl = await toPng(imageRef.current);
-    return dataUrl;
+
+    // 2. Convert Base64 Data URL to ArrayBuffer
+    const base64 = dataUrl.split(",")[1]; // Remove `data:image/png;base64,`
+    const bytes = base64ToBytes(base64);
+
+    // 3. Use SubtleCrypto to hash it (SHA-256)
+    const hashHex = await sha256Hash(bytes);
+
+    console.log("Image Hash:", hashHex);
+    setCsvImageHash(`0x${hashHex}`);
+    setCsvImage(dataUrl);
   };
 
   return (
@@ -153,6 +275,23 @@ export default function UploadNow() {
 
         <div className="mt-6">
           <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Creator's Name
+          </label>
+          <input
+            id="name"
+            name="name"
+            placeholder="Enter Creator's name"
+            value={creatorName}
+            onChange={(e) => setCreatorName(e.target.value)}
+            className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 p-3 text-lg"
+          />
+        </div>
+
+        <div className="mt-6">
+          <label
             htmlFor="category"
             className="block text-sm font-medium text-gray-700"
           >
@@ -165,9 +304,11 @@ export default function UploadNow() {
             onChange={(e) => setCategory(e.target.value)}
             className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 p-3 text-lg"
           >
-            <option value="0">Finance</option>
-            <option value="1">Medicine</option>
-            <option value="2">Text</option>
+            {Object.entries(Category).map(([key, value]) => (
+              <option key={value} value={value}>
+                {key.charAt(0).toUpperCase() + key.slice(1)}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -182,7 +323,7 @@ export default function UploadNow() {
           <div className="mt-4 text-green-600 text-sm">{success}</div>
         )}
 
-        <CSVPreview previewRows={csvPreview} ref={imageRef} />
+        <CSVPreview previewRows={csvPreviewRows} ref={imageRef} />
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
