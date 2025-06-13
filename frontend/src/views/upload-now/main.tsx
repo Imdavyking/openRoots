@@ -1,6 +1,6 @@
 "use client";
 import "viem/window";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "../../services/axios.config.services";
 import { FaSpinner } from "react-icons/fa";
 import { io } from "socket.io-client";
@@ -17,7 +17,7 @@ export default function UploadNow() {
   const [success, setSuccess] = useState("");
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
-  const [preview, setPreviewRows] = useState([]);
+  const [csvPreview, setPreviewRows] = useState([]);
   const imageRef = useRef(null);
   const { txLoading, txHash, txName, client } = useStory();
 
@@ -36,6 +36,38 @@ export default function UploadNow() {
     setError("");
     setSuccess("");
   };
+
+  useEffect(() => {
+    if (!file) return;
+    const previewImages = async () => {
+      const preview = await new Promise((resolve, reject) => {
+        Papa.parse(file, {
+          header: true,
+          complete: (results) => {
+            const allRows = results.data.filter(
+              (row) => Object.keys(row as any).length > 0
+            );
+            const preview = [];
+
+            for (let i = 0; i < 3; i++) {
+              const randomIndex = Math.floor(Math.random() * allRows.length);
+              preview.push(allRows[randomIndex] as never);
+            }
+
+            resolve(preview);
+          },
+          error: (error) => {
+            reject(error);
+          },
+        });
+      });
+      setPreviewRows(preview as any);
+      const imageUrl = await generateImage();
+      console.log("Generated image URL:", imageUrl);
+    };
+
+    previewImages();
+  }, [file]);
 
   const handleUpload = async () => {
     if (!file) return;
@@ -80,35 +112,9 @@ export default function UploadNow() {
         }
       );
 
-      const preview = await new Promise((resolve, reject) => {
-        Papa.parse(file, {
-          header: true,
-          complete: (results) => {
-            const allRows = results.data.filter(
-              (row) => Object.keys(row as any).length > 0
-            );
-            const preview = [];
-
-            for (let i = 0; i < 3; i++) {
-              const randomIndex = Math.floor(Math.random() * allRows.length);
-              preview.push(allRows[randomIndex] as never);
-            }
-
-            resolve(preview);
-          },
-          error: (error) => {
-            reject(error);
-          },
-        });
-      });
-
-      const imageUrl = await generateImage();
-      console.log("Generated image URL:", imageUrl);
-
       setError("");
 
-      setPreviewRows(preview as any); // set this state and display below the file input
-      const { cid, datasetId, signature, blockHeight } = response.data;
+      const { ipfsUrl, csvHash } = response.data;
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
@@ -176,7 +182,7 @@ export default function UploadNow() {
           <div className="mt-4 text-green-600 text-sm">{success}</div>
         )}
 
-        <CSVPreview previewRows={preview} ref={imageRef} />
+        <CSVPreview previewRows={csvPreview} ref={imageRef} />
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
