@@ -15,7 +15,7 @@ const config = getDefaultConfig({
   appName: "OpenRoots",
   projectId: WALLET_CONNECT_PROJECT_ID,
   chains: [storyAeneid],
-  ssr: false,
+  ssr: true,
 });
 
 const queryClient = new QueryClient();
