@@ -176,9 +176,7 @@ export default function UploadNow() {
           <div className="mt-4 text-green-600 text-sm">{success}</div>
         )}
 
-        {preview.length > 0 && (
-          <CSVPreview previewRows={preview} ref={imageRef} />
-        )}
+        <CSVPreview previewRows={preview} ref={imageRef} />
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
