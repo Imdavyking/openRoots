@@ -10,7 +10,7 @@ import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
 import { custom, toHex } from "viem";
 import { useWalletClient } from "wagmi";
-import { StoryClient, StoryConfig } from "@story-protocol/core-sdk";
+import { useStory } from "../../context/AppContext";
 
 export default function UploadNow() {
   const [file, setFile] = useState<File | null>(null);
@@ -19,17 +19,7 @@ export default function UploadNow() {
   const [category, setCategory] = useState("0");
   const [isUploading, setisUploading] = useState(false);
   const [preview, setPreviewRows] = useState([]);
-  const { data: wallet } = useWalletClient();
-
-  async function setupStoryClient(): Promise<StoryClient> {
-    const config: StoryConfig = {
-      wallet: wallet as any,
-      transport: custom(wallet!.transport) as any,
-      chainId: "aeneid",
-    };
-    const client = StoryClient.newClient(config);
-    return client;
-  }
+  const { txLoading, txHash, txName, client } = useStory();
 
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
@@ -116,8 +106,6 @@ export default function UploadNow() {
 
       setPreviewRows(preview as any); // set this state and display below the file input
       const { cid, datasetId, signature, blockHeight } = response.data;
-
-      const client = await setupStoryClient();
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
