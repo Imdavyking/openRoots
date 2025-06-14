@@ -301,14 +301,14 @@ export default function UploadNow() {
 
       console.log("Royalty paid", payRoyalty);
 
-      // const vaultResponse = await client.royalty.transferToVault({
-      //   royaltyPolicy: NativeRoyaltyPolicy.LRP,
-      //   ipId: mintIpResponse.ipId!,
-      //   ancestorIpId: groupId as `0x${string}`,
-      //   token: WIP_TOKEN_ADDRESS,
-      // });
+      const vaultResponse = await client.royalty.transferToVault({
+        royaltyPolicy: NativeRoyaltyPolicy.LRP,
+        ipId: mintIpResponse.ipId!,
+        ancestorIpId: groupId as `0x${string}`,
+        token: WIP_TOKEN_ADDRESS,
+      });
 
-      // console.log("Vault transfer response", vaultResponse);
+      console.log("Vault transfer response", vaultResponse);
       /// end for buyers ///
 
       const rewards = await client.groupClient.getClaimableReward({
