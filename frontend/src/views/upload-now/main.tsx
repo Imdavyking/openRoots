@@ -13,6 +13,7 @@ import { useStory } from "../../context/AppContext";
 import { ethers } from "ethers";
 import { IpMetadata, LicensingConfigInput } from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
+import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 
 export default function UploadNow() {
   const [file, setFile] = useState<File | null>(null);
@@ -85,6 +86,29 @@ export default function UploadNow() {
   useEffect(() => {
     generateImage();
   }, [csvPreviewRows]);
+
+  const getUserGroupId = async (
+    userAddress: string
+  ): Promise<string | null> => {
+    try {
+      // Replace with your backend API call or local storage check
+      const response = await axios.get(
+        `/api/user-group?address=${userAddress}`
+      );
+      return response.data.groupId || null;
+    } catch (err) {
+      console.error("Error fetching Group IP:", err.message);
+      return null;
+    }
+  };
+
+  const saveUserGroupId = async (userAddress: string, groupId: string) => {
+    try {
+      await axios.post("/api/user-group", { address: userAddress, groupId });
+    } catch (err) {
+      console.error("Error saving Group IP:", err.message);
+    }
+  };
 
   const handleUpload = async () => {
     if (!file) return;
