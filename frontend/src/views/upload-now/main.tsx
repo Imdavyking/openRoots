@@ -296,19 +296,19 @@ export default function UploadNow() {
         receiverIpId: mintIpResponse.ipId!,
         payerIpId: groupId as `0x${string}`,
         token: WIP_TOKEN_ADDRESS,
-        amount: ethers.parseEther("2"),
+        amount: ethers.parseEther("0.002"),
       });
 
       console.log("Royalty paid", payRoyalty);
 
-      const vaultResponse = await client.royalty.transferToVault({
-        royaltyPolicy: NativeRoyaltyPolicy.LRP,
-        ipId: mintIpResponse.ipId!,
-        ancestorIpId: groupId as `0x${string}`,
-        token: WIP_TOKEN_ADDRESS,
-      });
+      // const vaultResponse = await client.royalty.transferToVault({
+      //   royaltyPolicy: NativeRoyaltyPolicy.LRP,
+      //   ipId: mintIpResponse.ipId!,
+      //   ancestorIpId: groupId as `0x${string}`,
+      //   token: WIP_TOKEN_ADDRESS,
+      // });
 
-      console.log("Vault transfer response", vaultResponse);
+      // console.log("Vault transfer response", vaultResponse);
       /// end for buyers ///
 
       const rewards = await client.groupClient.getClaimableReward({
