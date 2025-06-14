@@ -277,6 +277,50 @@ export default function UploadNow() {
         );
 
       console.log("License Added", mintIpResponse);
+
+      /// For buyers ///
+      const mintResponse = await client.license.mintLicenseTokens({
+        licenseTermsId: LICENSE_TERMS_ID,
+        licensorIpId: mintIpResponse.ipId!,
+        amount: 1,
+        maxMintingFee: BigInt(0),
+        maxRevenueShare: 100,
+      });
+      console.log("License minted", mintResponse);
+
+      const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
+        receiverIpId: mintIpResponse.ipId!,
+        payerIpId: ethers.ZeroAddress as `0x${string}`,
+        token: WIP_TOKEN_ADDRESS,
+        amount: ethers.parseEther("2"),
+      });
+      console.log("Royalty paid", payRoyalty);
+      /// end for buyers ///
+
+      const rewards = await client.groupClient.getClaimableReward({
+        groupIpId: groupId as `0x${string}`,
+        currencyToken: WIP_TOKEN_ADDRESS,
+        memberIpIds: [mintIpResponse.ipId!],
+      });
+
+      console.log("Claimable rewards:", rewards);
+
+      const collectRoyaltiesResponse =
+        await client.groupClient.collectRoyalties({
+          groupIpId: groupId as `0x${string}`,
+          currencyToken: WIP_TOKEN_ADDRESS,
+        });
+
+      console.log("Royalties collected", collectRoyaltiesResponse);
+
+      const distrubutionResponse =
+        await client.groupClient.collectAndDistributeGroupRoyalties({
+          groupIpId: groupId as `0x${string}`,
+          currencyTokens: [WIP_TOKEN_ADDRESS],
+          memberIpIds: [mintIpResponse.ipId!], // From your mintAndRegisterIpAndAttachLicenseAndAddToGroup response
+        });
+
+      console.log("Royalties distributed", distrubutionResponse);
     } catch (err) {
       console.error(err.message);
       console.error("Stack trace:", err.stack);
