@@ -293,8 +293,8 @@ export default function UploadNow() {
       console.log("License minted", mintResponse);
 
       const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
-        receiverIpId: groupId as `0x${string}`,
-        payerIpId: ethers.ZeroAddress as `0x${string}`,
+        receiverIpId: mintIpResponse.ipId!,
+        payerIpId: groupId as `0x${string}`,
         token: WIP_TOKEN_ADDRESS,
         amount: ethers.parseEther("2"),
       });
@@ -303,7 +303,7 @@ export default function UploadNow() {
 
       const vaultResponse = await client.royalty.transferToVault({
         royaltyPolicy: NativeRoyaltyPolicy.LRP,
-        ipId: groupId as `0x${string}`,
+        ipId: mintIpResponse.ipId!,
         ancestorIpId: groupId as `0x${string}`,
         token: WIP_TOKEN_ADDRESS,
       });
