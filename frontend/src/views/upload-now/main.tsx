@@ -10,8 +10,8 @@ import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
 import { toPng } from "html-to-image";
 import { useStory } from "../../context/AppContext";
-import { data } from "react-router-dom";
-import { IpMetadata } from "@story-protocol/core-sdk";
+import { ethers } from "ethers";
+import { IpMetadata, LicensingConfigInput } from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
 
 export default function UploadNow() {
@@ -182,34 +182,55 @@ export default function UploadNow() {
         ],
       };
 
-      const ipResponse = await axios.post(
-        `/api/upload-json?socketId=${queryParams.toString()}`,
-        ipMetadata,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const [ipResponse, nftResponse] = await Promise.all([
+        axios.post(
+          `/api/upload-json?socketId=${queryParams.toString()}`,
+          ipMetadata,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        axios.post(
+          `/api/upload-json?socketId=${queryParams.toString()}`,
+          nftMetadata,
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+      ]);
+
+      const LICENSE_TERMS_ID = 96; // Commercial Remix License
+      const GROUP_POOL_ADDRESS = "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89";
+
+      const licenseInfo = await client.license.getLicenseTerms(
+        LICENSE_TERMS_ID
       );
 
-      const nftResponse = await axios.post(
-        `/api/upload-json?socketId=${queryParams.toString()}`,
-        nftMetadata,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const licensingConfig: LicensingConfigInput = {
+        isSet: true,
+        disabled: false,
+        expectGroupRewardPool: ethers.ZeroAddress as `0x${string}`,
+        mintingFee: licenseInfo.terms.defaultMintingFee,
+        licensingHook: ethers.ZeroAddress as `0x${string}`,
+        hookData: ethers.ZeroAddress as `0x${string}`,
+        commercialRevShare: 10,
+        expectMinimumGroupRewardShare: 0,
+      };
 
       const result = await client.groupClient.registerGroupAndAttachLicense({
-        groupPool: "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89",
+        groupPool: GROUP_POOL_ADDRESS,
         licenseData: {
-          licenseTermsId: 1,
+          licenseTermsId: LICENSE_TERMS_ID,
+          licensingConfig,
         },
       });
 
-    
+      licensingConfig.expectGroupRewardPool = GROUP_POOL_ADDRESS;
+
       const mintIpResponse =
         await client.groupClient.mintAndRegisterIpAndAttachLicenseAndAddToGroup(
           {
@@ -217,7 +238,8 @@ export default function UploadNow() {
             groupId: result.groupId!,
             licenseData: [
               {
-                licenseTermsId: 1,
+                licenseTermsId: LICENSE_TERMS_ID,
+                licensingConfig,
               },
             ],
             maxAllowedRewardShare: 100,
@@ -231,6 +253,7 @@ export default function UploadNow() {
       console.log("Group registered:", { result, mintIpResponse });
     } catch (err) {
       console.error(err.message);
+      console.error("Stack trace:", err.stack);
       setError("❌ Upload failed.");
       setSuccess("");
     } finally {
