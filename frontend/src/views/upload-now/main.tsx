@@ -91,7 +91,6 @@ export default function UploadNow() {
     userAddress: string
   ): Promise<string | null> => {
     try {
-      // Replace with your backend API call or local storage check
       const response = await axios.get(
         `/api/user-group?address=${userAddress}`
       );
@@ -167,6 +166,35 @@ export default function UploadNow() {
         setError("❌ Client is not initialized. Please try again.");
         return;
       }
+      const userAddress = wallet?.account?.address || "";
+      const LICENSE_TERMS_ID = 96; // Commercial Remix License
+      const GROUP_POOL_ADDRESS = "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89";
+      let groupId = await getUserGroupId(userAddress);
+      const licenseInfo = await client.license.getLicenseTerms(
+        LICENSE_TERMS_ID
+      );
+      const licensingConfig: LicensingConfigInput = {
+        isSet: true,
+        disabled: false,
+        expectGroupRewardPool: ethers.ZeroAddress as `0x${string}`,
+        mintingFee: licenseInfo.terms.defaultMintingFee,
+        licensingHook: ethers.ZeroAddress as `0x${string}`,
+        hookData: ethers.ZeroAddress as `0x${string}`,
+        commercialRevShare: 10,
+        expectMinimumGroupRewardShare: 0,
+      };
+
+      if (!groupId) {
+        const result = await client.groupClient.registerGroupAndAttachLicense({
+          groupPool: GROUP_POOL_ADDRESS,
+          licenseData: {
+            licenseTermsId: LICENSE_TERMS_ID,
+            licensingConfig,
+          },
+        });
+        groupId = result.groupId!;
+        await saveUserGroupId(userAddress, groupId);
+      }
 
       const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
         title: file.name,
@@ -227,39 +255,13 @@ export default function UploadNow() {
         ),
       ]);
 
-      const LICENSE_TERMS_ID = 96; // Commercial Remix License
-      const GROUP_POOL_ADDRESS = "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89";
-
-      const licenseInfo = await client.license.getLicenseTerms(
-        LICENSE_TERMS_ID
-      );
-
-      const licensingConfig: LicensingConfigInput = {
-        isSet: true,
-        disabled: false,
-        expectGroupRewardPool: ethers.ZeroAddress as `0x${string}`,
-        mintingFee: licenseInfo.terms.defaultMintingFee,
-        licensingHook: ethers.ZeroAddress as `0x${string}`,
-        hookData: ethers.ZeroAddress as `0x${string}`,
-        commercialRevShare: 10,
-        expectMinimumGroupRewardShare: 0,
-      };
-
-      const result = await client.groupClient.registerGroupAndAttachLicense({
-        groupPool: GROUP_POOL_ADDRESS,
-        licenseData: {
-          licenseTermsId: LICENSE_TERMS_ID,
-          licensingConfig,
-        },
-      });
-
       licensingConfig.expectGroupRewardPool = GROUP_POOL_ADDRESS;
 
       const mintIpResponse =
         await client.groupClient.mintAndRegisterIpAndAttachLicenseAndAddToGroup(
           {
             spgNftContract: SPGNFTContractAddress,
-            groupId: result.groupId!,
+            groupId: groupId as `0x${string}`,
             licenseData: [
               {
                 licenseTermsId: LICENSE_TERMS_ID,
@@ -274,7 +276,7 @@ export default function UploadNow() {
           }
         );
 
-      console.log("Group registered:", { result, mintIpResponse });
+      console.log("License Added", mintIpResponse);
     } catch (err) {
       console.error(err.message);
       console.error("Stack trace:", err.stack);
