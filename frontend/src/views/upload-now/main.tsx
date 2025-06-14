@@ -289,7 +289,7 @@ export default function UploadNow() {
       console.log("License minted", mintResponse);
 
       const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
-        receiverIpId: mintIpResponse.ipId!,
+        receiverIpId: groupId as `0x${string}`,
         payerIpId: ethers.ZeroAddress as `0x${string}`,
         token: WIP_TOKEN_ADDRESS,
         amount: ethers.parseEther("2"),
