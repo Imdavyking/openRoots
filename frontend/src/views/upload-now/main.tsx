@@ -11,7 +11,11 @@ import CSVPreview from "../csv-preview/main";
 import { toPng } from "html-to-image";
 import { useStory } from "../../context/AppContext";
 import { ethers } from "ethers";
-import { IpMetadata, LicensingConfigInput } from "@story-protocol/core-sdk";
+import {
+  IpMetadata,
+  LicensingConfigInput,
+  NativeRoyaltyPolicy,
+} from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 
@@ -294,7 +298,17 @@ export default function UploadNow() {
         token: WIP_TOKEN_ADDRESS,
         amount: ethers.parseEther("2"),
       });
+
       console.log("Royalty paid", payRoyalty);
+
+      const vaultResponse = await client.royalty.transferToVault({
+        royaltyPolicy: NativeRoyaltyPolicy.LRP,
+        ipId: groupId as `0x${string}`,
+        ancestorIpId: groupId as `0x${string}`,
+        token: WIP_TOKEN_ADDRESS,
+      });
+
+      console.log("Vault transfer response", vaultResponse);
       /// end for buyers ///
 
       const rewards = await client.groupClient.getClaimableReward({
