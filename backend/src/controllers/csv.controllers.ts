@@ -26,8 +26,6 @@ export const upload = multer({
   },
 });
 
-const generateUniqueId = () => ethers.hexlify(ethers.randomBytes(32));
-
 /**
  * Handles CSV file upload and processing.
  * @param {Request} req - The request object containing the uploaded CSV file.
@@ -55,8 +53,6 @@ export const processCSVUpload = async (req: Request, res: Response) => {
       message: "Connected",
       status: "success",
     });
-
-    const datasetId = generateUniqueId().replace(/-/g, "");
 
     const csvBlob = new Blob([file.buffer], { type: file.mimetype });
     const csvfile = new File([csvBlob], file.filename, {

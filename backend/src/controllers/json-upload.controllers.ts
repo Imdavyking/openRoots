@@ -1,11 +1,9 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
-import multer from "multer";
-import path from "path";
 import logger from "../config/logger";
-import { ethers } from "ethers";
 import { uploadToPinata } from "../services/pinata.services";
 import io from "../utils/create.websocket";
+import { createHash } from "crypto";
 dotenv.config();
 
 /**
@@ -36,8 +34,6 @@ export const processJSONUpload = async (req: Request, res: Response) => {
       status: "success",
     });
 
-    const datasetId = ethers.hexlify(ethers.randomBytes(32)).replace(/-/g, "");
-
     const jsonBuffer = Buffer.from(
       typeof jsonData === "string"
         ? jsonData
@@ -64,9 +60,11 @@ export const processJSONUpload = async (req: Request, res: Response) => {
 
     let ipfsUrl = pinataResponse.getUrl();
 
+    const jsonHash = createHash("sha256").update(jsonBuffer).digest("hex");
+
     res.status(200).json({
       ipfsUrl,
-      datasetId,
+      jsonHash,
     });
   } catch (error) {}
 };

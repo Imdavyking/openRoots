@@ -144,10 +144,6 @@ export default function UploadNow() {
         return;
       }
 
-      const result = await client.groupClient.registerGroup({
-        groupPool: "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89",
-      });
-
       const ipMetadata: IpMetadata = client.ipAsset.generateIpMetadata({
         title: file.name,
         description:
@@ -186,29 +182,53 @@ export default function UploadNow() {
         ],
       };
 
-      console.log("IP Metadata:", ipMetadata);
-      console.log("NFT Metadata:", nftMetadata);
+      const ipResponse = await axios.post(
+        `/api/upload-json?socketId=${queryParams.toString()}`,
+        ipMetadata,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      return;
+      const nftResponse = await axios.post(
+        `/api/upload-json?socketId=${queryParams.toString()}`,
+        nftMetadata,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // await client.groupClient.mintAndRegisterIpAndAttachLicenseAndAddToGroup({
-      //   spgNftContract: SPGNFTContractAddress,
-      //   groupId: result.groupId!,
-      //   licenseData: [
-      //     {
-      //       licenseTermsId: 1,
-      //     },
-      //   ],
-      //   maxAllowedRewardShare: 100,
-      //   ipMetadata: {
-      //     ipMetadataURI: "ipfs://your-dataset-metadata.json",
-      //     ipMetadataHash: csvHash,
-      //     nftMetadataURI: "ipfs://your-nft-metadata.json",
-      //     nftMetadataHash: "0xnftHash",
-      //   },
-      // });
+      const result = await client.groupClient.registerGroupAndAttachLicense({
+        groupPool: "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89",
+        licenseData: {
+          licenseTermsId: 1,
+        },
+      });
 
-      console.log("Group registered:", result);
+    
+      const mintIpResponse =
+        await client.groupClient.mintAndRegisterIpAndAttachLicenseAndAddToGroup(
+          {
+            spgNftContract: SPGNFTContractAddress,
+            groupId: result.groupId!,
+            licenseData: [
+              {
+                licenseTermsId: 1,
+              },
+            ],
+            maxAllowedRewardShare: 100,
+            ipMetadata: {
+              ipMetadataURI: ipResponse.data.ipfsUrl,
+              nftMetadataURI: nftResponse.data.ipfsUrl,
+            },
+          }
+        );
+
+      console.log("Group registered:", { result, mintIpResponse });
     } catch (err) {
       console.error(err.message);
       setError("❌ Upload failed.");
@@ -239,17 +259,13 @@ export default function UploadNow() {
   const generateImage = async () => {
     if (!imageRef.current) return;
 
-    // 1. Generate PNG Data URL from DOM node
     const dataUrl = await toPng(imageRef.current);
 
-    // 2. Convert Base64 Data URL to ArrayBuffer
-    const base64 = dataUrl.split(",")[1]; // Remove `data:image/png;base64,`
+    const base64 = dataUrl.split(",")[1];
     const bytes = base64ToBytes(base64);
 
-    // 3. Use SubtleCrypto to hash it (SHA-256)
     const hashHex = await sha256Hash(bytes);
 
-    console.log("Image Hash:", hashHex);
     setCsvImageHash(`0x${hashHex}`);
     setCsvImage(dataUrl);
   };
