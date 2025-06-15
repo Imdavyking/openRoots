@@ -12,7 +12,7 @@ export default defineConfig({
     tailwindcss(),
     react(),
     nodePolyfills({
-      include: ["process", "util"],
+      include: ["process", "util", "path"],
     }),
   ],
   define: {
@@ -21,7 +21,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Remove the buffer alias
+      // path: "path-browserify",
     },
   },
   optimizeDeps: {
