@@ -170,6 +170,7 @@ export default function UploadNow() {
         setError("❌ Client is not initialized. Please try again.");
         return;
       }
+
       const userAddress = wallet?.account?.address || "";
       const LICENSE_TERMS_ID = 96; // Commercial Remix License
       const GROUP_POOL_ADDRESS = "0xf96f2c30b41Cb6e0290de43C8528ae83d4f33F89";
@@ -285,7 +286,7 @@ export default function UploadNow() {
       /// For buyers ///
       const mintResponse = await client.license.mintLicenseTokens({
         licenseTermsId: LICENSE_TERMS_ID,
-        licensorIpId: mintIpResponse.ipId!,
+        licensorIpId: groupId as `0x${string}`,
         amount: 1,
         maxMintingFee: BigInt(0),
         maxRevenueShare: 100,
@@ -293,31 +294,15 @@ export default function UploadNow() {
       console.log("License minted", mintResponse);
 
       const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
-        receiverIpId: mintIpResponse.ipId!,
-        payerIpId: groupId as `0x${string}`,
+        receiverIpId: groupId as `0x${string}`,
+        payerIpId: ethers.ZeroAddress as `0x${string}`,
         token: WIP_TOKEN_ADDRESS,
         amount: ethers.parseEther("0.002"),
       });
 
       console.log("Royalty paid", payRoyalty);
 
-      const vaultResponse = await client.royalty.transferToVault({
-        royaltyPolicy: NativeRoyaltyPolicy.LRP,
-        ipId: mintIpResponse.ipId!,
-        ancestorIpId: groupId as `0x${string}`,
-        token: WIP_TOKEN_ADDRESS,
-      });
-
-      console.log("Vault transfer response", vaultResponse);
       /// end for buyers ///
-
-      const rewards = await client.groupClient.getClaimableReward({
-        groupIpId: groupId as `0x${string}`,
-        currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: [mintIpResponse.ipId!],
-      });
-
-      console.log("Claimable rewards:", rewards);
 
       const collectRoyaltiesResponse =
         await client.groupClient.collectRoyalties({
@@ -326,6 +311,14 @@ export default function UploadNow() {
         });
 
       console.log("Royalties collected", collectRoyaltiesResponse);
+
+      const rewards = await client.groupClient.getClaimableReward({
+        groupIpId: groupId as `0x${string}`,
+        currencyToken: WIP_TOKEN_ADDRESS,
+        memberIpIds: [mintIpResponse.ipId!],
+      });
+
+      console.log("Claimable rewards:", rewards);
 
       const distrubutionResponse =
         await client.groupClient.collectAndDistributeGroupRoyalties({
