@@ -1,7 +1,6 @@
 {
   "name": "hardhat-project",
   "scripts": {
-    "postinstall": "node fix-blocklock.js",
     "dev": "nodemon src/app.ts",
     "start": "node build/app.js",
     "build": "yarn && tsc",

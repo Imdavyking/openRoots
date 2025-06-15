@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   define: {
     "process.env": {},
-    "process.cwd": "() => '/'",
+    "process.cwd": "'/'",
     global: "globalThis",
   },
   resolve: {

@@ -112,6 +112,8 @@ const RoyaltiesPage = () => {
         memberIpIds,
       });
 
+      console.log("Reward Info:", rewardInfo);
+
       const totalRewards = rewardInfo.reduce(
         (acc: bigint, curr: bigint) => acc + BigInt(curr),
         BigInt(0)
