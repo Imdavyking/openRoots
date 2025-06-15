@@ -29,13 +29,15 @@ const RoyaltiesPage = () => {
     const userAddress = wallet?.account?.address || "";
     getUserGroupId(userAddress)
       .then((id) => {
+        console.log("Group ID:", id);
         setGroupId(id as `0x${string}`);
+        setStatus("✅ Group ID fetched successfully.");
       })
       .catch((error) => {
         console.error("Error fetching group ID:", error);
         setStatus("❌ Error fetching group ID. Please try again later.");
       });
-  }, []);
+  }, [wallet]);
 
   const formatEth = (amount: string | number | bigint) => {
     return parseFloat(amount.toString()) / 1e18;

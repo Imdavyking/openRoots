@@ -10,6 +10,7 @@ const NavHeader = () => {
     { to: "/get-started", label: "Start" },
     { to: "/upload-now", label: "Upload" },
     { to: "/discover-dataset", label: "Discover" },
+    { to: "/collect-rewards", label: "Rewards" },
   ];
 
   const renderLinks = (isMobile = false) =>
