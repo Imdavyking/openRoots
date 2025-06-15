@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axiosBackend from "../../services/axios.config.services";
-import { ethers } from "ethers";
 import { FaSpinner } from "react-icons/fa";
 import DatasetItem from "./item";
 import { DatasetInfo } from "../../types/dataset.type";
-import axios from "axios";
 
 // Sample datasets for demo purposes
 

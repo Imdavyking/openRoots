@@ -2,26 +2,18 @@ import { ellipsify } from "../../utils/ellipsify.ts";
 import { useEffect, useState } from "react";
 import CSVPreview from "../csv-preview/main.jsx";
 import { ethers } from "ethers";
-import {
-  canAccess,
-  purchaseAccess,
-  rethrowFailedResponse,
-} from "../../services/blockchain.services.ts";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
-import axios from "../../services/axios.config.services.ts";
 import axiosRequest, { AxiosError } from "axios";
-import { signDataSetId } from "../../services/dataset.signature.services.ts";
 import {
   LICENSE_TERMS_ID,
-  LIT_PROTOCOL_IDENTIFIER,
   ML_URL,
 } from "../../utils/constants.js";
+import axiosBackend from "../../services/axios.config.services";
 import { DatasetInfo } from "../../types/dataset.type.ts";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
 import { useStory } from "../../context/AppContext";
-import { getUserGroupId } from "../upload-now/main";
 
 const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const [canAccessDataset, setCanAccessDataset] = useState(false);
@@ -33,11 +25,22 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const [modelType, setModelType] = useState("LinearRegression");
   const [csvData, setCsvData] = useState<BlobPart | null>(null);
   const [columns, setColumns] = useState([]);
+  const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
 
   const canAccessCall = async () => {
-    const userCanDownload = await canAccess(+dataset.cid);
-    setCanAccessDataset(userCanDownload);
+    if (!wallet || !wallet.account) {
+      setCanAccessDataset(false);
+      return;
+    }
+    const userCanDownload = await axiosBackend.get(
+      `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
+    );
+    if (userCanDownload.data.hasAccess) {
+      setCanAccessDataset(true);
+      return;
+    }
+    setCanAccessDataset(false);
   };
 
   const modelTypes = ["LinearRegression", "RandomForest", "DecisionTree"];
@@ -150,13 +153,15 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   };
 
   const purchaseAccessOnChain = async () => {
-    setCanAccessDataset(true);
-    return;
     if (!client) {
       toast.error("Client not initialized. Please try again later.");
       return;
     }
     try {
+      if (!wallet || !wallet.account) {
+        toast.error("Please connect your wallet first.");
+        return;
+      }
       console.log(dataset);
       setIsLoading(true);
 
@@ -175,6 +180,16 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
         token: WIP_TOKEN_ADDRESS,
         amount: ethers.parseEther("0.002"),
       });
+
+      const response = await axiosBackend.post("/api/access-group/add", {
+        groupId: dataset.groupId,
+        userAddress: wallet.account.address,
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to add user to access group");
+      }
+      console.log("User added to access group:", response.data);
 
       toast.success("Access purchased successfully!");
       setCanAccessDataset(true);

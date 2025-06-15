@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useWalletClient } from "wagmi";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 import { useStory } from "../../context/AppContext";

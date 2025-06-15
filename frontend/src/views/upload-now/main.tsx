@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import axios from "../../services/axios.config.services";
 import { FaSpinner } from "react-icons/fa";
 import { io } from "socket.io-client";
-import { LICENSE_TERMS_ID, SERVER_URL, SPGNFTContractAddress } from "../../utils/constants";
+import {
+  LICENSE_TERMS_ID,
+  SERVER_URL,
+  SPGNFTContractAddress,
+} from "../../utils/constants";
 import { toast } from "react-toastify";
 import Papa from "papaparse";
 import CSVPreview from "../csv-preview/main";
@@ -13,7 +17,6 @@ import { useStory } from "../../context/AppContext";
 import { ethers } from "ethers";
 import { IpMetadata, LicensingConfigInput } from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
-import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 import { DatasetInfo } from "../../types/dataset.type";
 
 export const getUserGroupId = async (
