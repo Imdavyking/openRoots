@@ -60,7 +60,7 @@ const RoyaltiesPage = () => {
         return;
       }
       setStatus("⏳ Collecting royalties...");
-      const collected = await client.groupClient.collectRoyalties({
+      await client.groupClient.collectRoyalties({
         groupIpId: groupId!,
         currencyToken: WIP_TOKEN_ADDRESS,
       });
@@ -68,13 +68,13 @@ const RoyaltiesPage = () => {
       setStatus("✅ Royalties collected");
 
       setStatus("⏳ Checking claimable rewards...");
-      //   const rewardInfo = await client.groupClient.getClaimableReward({
-      //     groupIpId: groupId!,
-      //     currencyToken: WIP_TOKEN_ADDRESS,
-      //     memberIpIds: [memberIpId],
-      //   });
+      const rewardInfo = await client.groupClient.getClaimableReward({
+        groupIpId: groupId!,
+        currencyToken: WIP_TOKEN_ADDRESS,
+        memberIpIds: [memberIpId],
+      });
 
-      //   console.log("Reward Info:", rewardInfo);
+      console.log("Reward Info:", rewardInfo);
 
       //   //   const amount = rewardInfo[0]? || "0";
       //   const amount = "0";
