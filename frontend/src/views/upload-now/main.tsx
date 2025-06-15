@@ -320,14 +320,12 @@ export default function UploadNow() {
 
       console.log("Claimable rewards:", rewards);
 
-      const distrubutionResponse =
-        await client.groupClient.collectAndDistributeGroupRoyalties({
-          groupIpId: groupId as `0x${string}`,
-          currencyTokens: [WIP_TOKEN_ADDRESS],
-          memberIpIds: [mintIpResponse.ipId!], // From your mintAndRegisterIpAndAttachLicenseAndAddToGroup response
-        });
-
-      console.log("Royalties distributed", distrubutionResponse);
+      const claimedRewards = await client.groupClient.claimReward({
+        groupIpId: groupId as `0x${string}`,
+        currencyToken: WIP_TOKEN_ADDRESS,
+        memberIpIds: [mintIpResponse.ipId!],
+      });
+      console.log("Rewards claimed:", claimedRewards);
     } catch (err) {
       console.error(err.message);
       console.error("Stack trace:", err.stack);
