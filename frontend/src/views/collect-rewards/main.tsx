@@ -5,7 +5,7 @@ import { useStory } from "../../context/AppContext";
 import { getUserGroupId } from "../upload-now/main";
 import axiosBackend from "../../services/axios.config.services";
 import { DatasetInfo } from "../../types/dataset.type";
-import { data } from "react-router-dom";
+import { FaSpinner } from "react-icons/fa";
 type Props = {
   groupId: `0x${string}`;
   wipTokenAddress: `0x${string}`;
@@ -19,6 +19,7 @@ const RoyaltiesPage = () => {
   const [rewards, setRewards] = useState<null | string>(null);
   const [claimed, setClaimed] = useState<null | string>(null);
   const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
+  const [isClaimingRewards, setIsClaimingRewards] = useState(false);
   const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
   const [groupId, setGroupId] = useState<`0x${string}` | null>();
@@ -69,6 +70,7 @@ const RoyaltiesPage = () => {
 
   const handleCollectAndClaim = async () => {
     try {
+      setIsClaimingRewards(true);
       if (!wallet) {
         setStatus("❌ Please connect your wallet first.");
         return;
@@ -123,6 +125,8 @@ const RoyaltiesPage = () => {
     } catch (error: any) {
       console.error(error);
       setStatus(`❌ Error: ${error.message || "Unknown error"}`);
+    } finally {
+      setIsClaimingRewards(false);
     }
   };
 
@@ -132,12 +136,16 @@ const RoyaltiesPage = () => {
         🎁 Royalties & Rewards
       </h1>
 
-      <button
-        onClick={handleCollectAndClaim}
-        className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition"
-      >
-        Collect & Claim
-      </button>
+      {isClaimingRewards ? (
+        <FaSpinner className="animate-spin  text-3xl" />
+      ) : (
+        <button
+          onClick={handleCollectAndClaim}
+          className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition"
+        >
+          Collect & Claim
+        </button>
+      )}
 
       <div className="text-center text-sm text-gray-500">{status}</div>
 
