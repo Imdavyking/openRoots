@@ -23,10 +23,10 @@ function DiscoverDataset() {
   const getUserDatasets = async () => {
     try {
       setIsGettingDatasets(true);
-      const datasets = (await axiosBackend.get(
-        "/api/dataset"
-      )) as DatasetInfo[];
+      const datasets = (await axiosBackend.get("/api/dataset"))
+        .data as DatasetInfo[];
 
+      setFilteredDatasets(datasets);
       setDatasets(datasets);
 
       return datasets;

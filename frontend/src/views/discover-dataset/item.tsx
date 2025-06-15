@@ -165,7 +165,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   return (
     <div key={dataset.cid} className="bg-white p-5 rounded-lg shadow-lg">
       <h3 className="text-xl font-semibold text-gray-800">{dataset.name}</h3>
-      <p className="text-gray-600 mt-2">{dataset.description}</p>
+      {/* <p className="text-gray-600 mt-2">{dataset.description}</p> */}
       <p className="mt-4 text-gray-700">
         <strong>Category:</strong> {dataset.category}
       </p>
@@ -174,7 +174,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
         <strong>Creator:</strong> {ellipsify(dataset.creator)}
       </p>
 
-      <CSVPreview previewRows={JSON.parse(dataset.preview)} />
+      <CSVPreview previewRows={JSON.parse(dataset.description)} />
 
       <>
         {" "}
