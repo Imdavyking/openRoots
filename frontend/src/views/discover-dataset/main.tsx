@@ -16,7 +16,6 @@ function DiscoverDataset() {
     verified: "",
     rating: "",
   });
-  const categories = ["Finance", "Medicine", "Text"];
 
   const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
   const [filteredDatasets, setFilteredDatasets] = useState<DatasetInfo[]>([]);

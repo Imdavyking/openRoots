@@ -1,7 +1,7 @@
 import { ellipsify } from "../../utils/ellipsify.ts";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CSVPreview from "../csv-preview/main.jsx";
-
+import { ethers } from "ethers";
 import {
   canAccess,
   purchaseAccess,
@@ -12,8 +12,16 @@ import { FaSpinner } from "react-icons/fa";
 import axios from "../../services/axios.config.services.ts";
 import axiosRequest, { AxiosError } from "axios";
 import { signDataSetId } from "../../services/dataset.signature.services.ts";
-import { LIT_PROTOCOL_IDENTIFIER, ML_URL } from "../../utils/constants.js";
+import {
+  LICENSE_TERMS_ID,
+  LIT_PROTOCOL_IDENTIFIER,
+  ML_URL,
+} from "../../utils/constants.js";
 import { DatasetInfo } from "../../types/dataset.type.ts";
+import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { useWalletClient } from "wagmi";
+import { useStory } from "../../context/AppContext";
+import { getUserGroupId } from "../upload-now/main";
 
 const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const [canAccessDataset, setCanAccessDataset] = useState(false);
@@ -25,6 +33,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const [modelType, setModelType] = useState("LinearRegression");
   const [csvData, setCsvData] = useState<BlobPart | null>(null);
   const [columns, setColumns] = useState([]);
+  const { txLoading, txHash, txName, client } = useStory();
 
   const canAccessCall = async () => {
     const userCanDownload = await canAccess(+dataset.cid);
@@ -55,9 +64,6 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       });
 
       toast.success("Dataset trained successfully!");
-
-      // dataset_id = data.get("dataset_id");
-      // input_data = data.get("input_data");
 
       console.log(`Training response: ${trainingResponse.data}`);
 
@@ -93,7 +99,11 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   };
 
   const downloadCSV = async () => {
-    const blob = new Blob([csvData!], { type: "text/plain" });
+    if (!csvData) {
+      toast.error("No CSV data available to download.");
+      return;
+    }
+    const blob = new Blob([csvData], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
 
     const link = document.createElement("a");
@@ -109,26 +119,24 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
     try {
       setIsLoading(true);
 
-      const response = "";
       const pinataUrl = `https://emerald-odd-bee-965.mypinata.cloud/ipfs/${dataset.cid}`;
       const fetchResult = await axiosRequest.get(pinataUrl);
-      const { ciphertext, dataToEncryptHash, evmContractConditions } =
-        fetchResult.data;
+      const { mediaUrl } = fetchResult.data;
 
-      const message = dataset.cid;
-      const signature = await signDataSetId(+message);
-
-      const sessionResponse = await axios.post("/api/lit-session", {
-        signature,
-        message,
-        evmContractConditions,
-        chain: LIT_PROTOCOL_IDENTIFIER,
-        ciphertext,
-        dataToEncryptHash,
+      if (!mediaUrl) {
+        toast.error("No media URL found in dataset.");
+        return;
+      }
+      const mediaContent = await axiosRequest.get(mediaUrl, {
+        responseType: "blob",
       });
-      const { capacityDelegationAuthSig } = sessionResponse.data;
+      if (!mediaContent.data) {
+        toast.error("No media content found in dataset.");
+        return;
+      }
 
-      rethrowFailedResponse(response);
+      setCsvData(mediaContent as any);
+
       toast.success("Download started!");
       setCanAccessDataset(true);
     } catch (error) {
@@ -141,11 +149,29 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   };
 
   const purchaseAccessOnChain = async () => {
+    if (!client) {
+      toast.error("Client not initialized. Please try again later.");
+      return;
+    }
     try {
       console.log(dataset);
       setIsLoading(true);
 
-      const response = await purchaseAccess(+dataset.cid);
+      await client.license.mintLicenseTokens({
+        licenseTermsId: LICENSE_TERMS_ID,
+        licensorIpId: dataset.groupId as `0x${string}`,
+        amount: 1,
+        maxMintingFee: BigInt(0),
+        maxRevenueShare: 100,
+      });
+      toast.success("License minted successfully!");
+
+      await client.royalty.payRoyaltyOnBehalf({
+        receiverIpId: dataset.groupId as `0x${string}`,
+        payerIpId: ethers.ZeroAddress as `0x${string}`,
+        token: WIP_TOKEN_ADDRESS,
+        amount: ethers.parseEther("0.002"),
+      });
 
       toast.success("Access purchased successfully!");
       setCanAccessDataset(true);

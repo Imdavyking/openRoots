@@ -15,7 +15,9 @@ export const ML_URL = import.meta.env.VITE_ML_URL;
 export const WALLET_CONNECT_PROJECT_ID = import.meta.env
   .VITE_WALLET_CONNECT_PROJECT_ID;
 export const TOMO_CLIENT_ID = import.meta.env.VITE_TOMO_CLIENT_ID;
-export const SPGNFTContractAddress = "0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc";
+export const SPGNFTContractAddress =
+  "0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc";
+export const LICENSE_TERMS_ID = 96; // Commercial Remix License
 
 // defaultNFTContractAddress: '0x937bef10ba6fb941ed84b8d249abc76031429a9a' as Address,
 // defaultSPGNFTContractAddress: '0xc32A8a0FF3beDDDa58393d022aF433e78739FAbc' as Address,
