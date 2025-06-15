@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import dotenv from "dotenv";
 import logger from "../config/logger";
-import { uploadToPinata } from "../services/pinata.services";
+import { uploadToPinata } from "../services/pinata.service";
 import io from "../utils/create.websocket";
 import { createHash } from "crypto";
 dotenv.config();

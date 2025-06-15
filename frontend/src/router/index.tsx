@@ -4,6 +4,7 @@ import GetStarted from "../views/get-started/main";
 import NotFound from "../views/not-found/main";
 import UploadNow from "../views/upload-now/main";
 import DiscoverDataset from "../views/discover-dataset/main";
+import RoyaltiesPage from "../views/collect-rewards/main";
 function Router() {
   const routes = [
     {
@@ -21,6 +22,10 @@ function Router() {
     {
       path: "/discover-dataset",
       element: <DiscoverDataset />,
+    },
+    {
+      path: "/collect-rewards",
+      element: <RoyaltiesPage />,
     },
     {
       path: "*",

@@ -9,10 +9,10 @@ import { createProxyMiddleware } from "http-proxy-middleware";
 import { createServer } from "http";
 import { allowedOrigins } from "./constants";
 import { JWT_SECRET_KEY } from "../middlewares/auth";
-import csvRoutes from "../routes/csv.routes";
-import jsonRoutes from "../routes/json-upload.routes";
+import csvRoutes from "../routes/csv.route";
+import jsonRoutes from "../routes/json-upload.route";
 import userGroupModel from "../models/user-group.model";
-import userGroupRoutes from "../routes/user-group.routes";
+import userGroupRoutes from "../routes/user-group.route";
 
 dotenv.config();
 const app = express();

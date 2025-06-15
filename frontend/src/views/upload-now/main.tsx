@@ -11,13 +11,22 @@ import CSVPreview from "../csv-preview/main";
 import { toPng } from "html-to-image";
 import { useStory } from "../../context/AppContext";
 import { ethers } from "ethers";
-import {
-  IpMetadata,
-  LicensingConfigInput,
-  NativeRoyaltyPolicy,
-} from "@story-protocol/core-sdk";
+import { IpMetadata, LicensingConfigInput } from "@story-protocol/core-sdk";
 import { useWalletClient } from "wagmi";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
+import { DatasetInfo } from "../../types/dataset.type";
+
+export const getUserGroupId = async (
+  userAddress: string
+): Promise<string | null> => {
+  try {
+    const response = await axios.get(`/api/user-group?address=${userAddress}`);
+    return response.data.groupId || null;
+  } catch (err) {
+    console.error("Error fetching Group IP:", err.message);
+    return null;
+  }
+};
 
 export default function UploadNow() {
   const [file, setFile] = useState<File | null>(null);
@@ -90,20 +99,6 @@ export default function UploadNow() {
   useEffect(() => {
     generateImage();
   }, [csvPreviewRows]);
-
-  const getUserGroupId = async (
-    userAddress: string
-  ): Promise<string | null> => {
-    try {
-      const response = await axios.get(
-        `/api/user-group?address=${userAddress}`
-      );
-      return response.data.groupId || null;
-    } catch (err) {
-      console.error("Error fetching Group IP:", err.message);
-      return null;
-    }
-  };
 
   const saveUserGroupId = async (userAddress: string, groupId: string) => {
     try {
@@ -282,6 +277,26 @@ export default function UploadNow() {
         );
 
       console.log("License Added", mintIpResponse);
+
+      // save dataset info to database
+      const datasetInfo: DatasetInfo = {
+        creator: creatorName,
+        cid: ipResponse.data.ipfsUrl.split("/").pop(),
+        groupId: groupId,
+        createdAt: Math.trunc(new Date().getTime() / 1000),
+        category:
+          Object.keys(Category).find(
+            (key) => Category[key as keyof typeof Category] === category
+          ) || "Unknown",
+        name: file.name,
+        description:
+          typeof csvPreviewRows === "string"
+            ? csvPreviewRows
+            : JSON.stringify(csvPreviewRows),
+        preview: csvImage!,
+      };
+
+      console.log("Dataset Info:", datasetInfo);
 
       // /// For buyers ///
       // const mintResponse = await client.license.mintLicenseTokens({

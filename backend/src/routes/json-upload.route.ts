@@ -1,5 +1,5 @@
 import express from "express";
-import { processJSONUpload } from "../controllers/json-upload.controllers";
+import { processJSONUpload } from "../controllers/json-upload.controller";
 
 const jsonRoutes = express.Router();
 jsonRoutes.post("/", processJSONUpload);

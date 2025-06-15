@@ -92,26 +92,6 @@ function DiscoverDataset() {
           <option value="Finance">Finance</option>
           <option value="Text">Text</option>
         </select>
-
-        <select
-          className="p-3 border border-gray-300 rounded-lg shadow-sm"
-          onChange={(e) => setFilter({ ...filter, verified: e.target.value })}
-          value={filter.verified}
-        >
-          <option value="">Verified</option>
-          <option value="true">Verified</option>
-          <option value="false">Not Verified</option>
-        </select>
-
-        <select
-          className="p-3 border border-gray-300 rounded-lg shadow-sm"
-          onChange={(e) => setFilter({ ...filter, rating: e.target.value })}
-          value={filter.rating}
-        >
-          <option value="">Rating</option>
-          <option value="4.0">4.0+</option>
-          <option value="4.5">4.5+</option>
-        </select>
       </div>
 
       {isGettingDatasets && <FaSpinner className="animate-spin  text-3xl" />}

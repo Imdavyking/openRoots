@@ -7,6 +7,7 @@ const DatasetSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String, required: true },
   preview: { type: String, required: true },
+  groupId: { type: String, required: true },
 });
 
 export default mongoose.model("Dataset", DatasetSchema);

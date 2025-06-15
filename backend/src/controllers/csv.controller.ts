@@ -4,7 +4,7 @@ import multer from "multer";
 import path from "path";
 import logger from "../config/logger";
 import { ethers } from "ethers";
-import { uploadToPinata } from "../services/pinata.services";
+import { uploadToPinata } from "../services/pinata.service";
 import io from "../utils/create.websocket";
 import { createHash } from "crypto";
 dotenv.config();
