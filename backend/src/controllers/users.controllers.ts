@@ -8,7 +8,7 @@ dotenv.config();
 
 /**
  * Handles JSON body upload and processing.
- * @param {Request} req - The request object containing the uploaded JSON file.
+ * @param {Request} req - The request object containing the uploaded CSV file.
  * @param {Response} res - The response object to send the result.
  * @route POST /api/upload-json
  */
