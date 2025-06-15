@@ -7,8 +7,11 @@ io.emit("connection", (data: any) => {
   logger.info(`user connected ${data}`);
 });
 import server from "./utils/create.server";
+import { connectDB } from "./database/connection";
 
 dotenv.config();
+
+connectDB();
 
 // Start the server
 const PORT = environment.PORT || 3000;

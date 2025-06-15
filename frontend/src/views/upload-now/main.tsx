@@ -283,49 +283,49 @@ export default function UploadNow() {
 
       console.log("License Added", mintIpResponse);
 
-      /// For buyers ///
-      const mintResponse = await client.license.mintLicenseTokens({
-        licenseTermsId: LICENSE_TERMS_ID,
-        licensorIpId: groupId as `0x${string}`,
-        amount: 1,
-        maxMintingFee: BigInt(0),
-        maxRevenueShare: 100,
-      });
-      console.log("License minted", mintResponse);
+      // /// For buyers ///
+      // const mintResponse = await client.license.mintLicenseTokens({
+      //   licenseTermsId: LICENSE_TERMS_ID,
+      //   licensorIpId: groupId as `0x${string}`,
+      //   amount: 1,
+      //   maxMintingFee: BigInt(0),
+      //   maxRevenueShare: 100,
+      // });
+      // console.log("License minted", mintResponse);
 
-      const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
-        receiverIpId: groupId as `0x${string}`,
-        payerIpId: ethers.ZeroAddress as `0x${string}`,
-        token: WIP_TOKEN_ADDRESS,
-        amount: ethers.parseEther("0.002"),
-      });
+      // const payRoyalty = await client.royalty.payRoyaltyOnBehalf({
+      //   receiverIpId: groupId as `0x${string}`,
+      //   payerIpId: ethers.ZeroAddress as `0x${string}`,
+      //   token: WIP_TOKEN_ADDRESS,
+      //   amount: ethers.parseEther("0.002"),
+      // });
 
-      console.log("Royalty paid", payRoyalty);
+      // console.log("Royalty paid", payRoyalty);
 
-      /// end for buyers ///
+      // /// end for buyers ///
 
-      const collectRoyaltiesResponse =
-        await client.groupClient.collectRoyalties({
-          groupIpId: groupId as `0x${string}`,
-          currencyToken: WIP_TOKEN_ADDRESS,
-        });
+      // const collectRoyaltiesResponse =
+      //   await client.groupClient.collectRoyalties({
+      //     groupIpId: groupId as `0x${string}`,
+      //     currencyToken: WIP_TOKEN_ADDRESS,
+      //   });
 
-      console.log("Royalties collected", collectRoyaltiesResponse);
+      // console.log("Royalties collected", collectRoyaltiesResponse);
 
-      const rewards = await client.groupClient.getClaimableReward({
-        groupIpId: groupId as `0x${string}`,
-        currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: [mintIpResponse.ipId!],
-      });
+      // const rewards = await client.groupClient.getClaimableReward({
+      //   groupIpId: groupId as `0x${string}`,
+      //   currencyToken: WIP_TOKEN_ADDRESS,
+      //   memberIpIds: [mintIpResponse.ipId!],
+      // });
 
-      console.log("Claimable rewards:", rewards);
+      // console.log("Claimable rewards:", rewards);
 
-      const claimedRewards = await client.groupClient.claimReward({
-        groupIpId: groupId as `0x${string}`,
-        currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: [mintIpResponse.ipId!],
-      });
-      console.log("Rewards claimed:", claimedRewards);
+      // const claimedRewards = await client.groupClient.claimReward({
+      //   groupIpId: groupId as `0x${string}`,
+      //   currencyToken: WIP_TOKEN_ADDRESS,
+      //   memberIpIds: [mintIpResponse.ipId!],
+      // });
+      // console.log("Rewards claimed:", claimedRewards);
     } catch (err) {
       console.error(err.message);
       console.error("Stack trace:", err.stack);

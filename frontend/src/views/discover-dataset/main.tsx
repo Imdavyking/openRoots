@@ -3,6 +3,7 @@ import { getAllDatasets } from "../../services/blockchain.services";
 import { ethers } from "ethers";
 import { FaSpinner } from "react-icons/fa";
 import DatasetItem from "./item";
+import { DatasetInfo } from "../../types/dataset.type";
 
 // Sample datasets for demo purposes
 
@@ -15,27 +16,9 @@ function DiscoverDataset() {
     rating: "",
   });
   const categories = ["Finance", "Medicine", "Text"];
-  type Dataset = {
-    creator: string;
-    cid: string;
-    priceIntFIL: string;
-    starsTotal: number;
-    starsCount: number;
-    rating: number;
-    downloads: number;
-    createdAt: number;
-    createdAtReadable: string;
-    category: string;
-    name: string;
-    description: string;
-    preview: string;
-    id: string;
-    verified: boolean;
-    decryptionBlockNumber: number;
-  };
 
-  const [datasets, setDatasets] = useState<Dataset[]>([]);
-  const [filteredDatasets, setFilteredDatasets] = useState<Dataset[]>([]);
+  const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
+  const [filteredDatasets, setFilteredDatasets] = useState<DatasetInfo[]>([]);
   const getUserDatasets = async () => {
     try {
       setIsGettingDatasets(true);
@@ -76,11 +59,7 @@ function DiscoverDataset() {
     let filtered = datasets.filter((dataset) => {
       return (
         dataset.name.toLowerCase().includes(search.toLowerCase()) &&
-        (filter.category ? dataset.category === filter.category : true) &&
-        (filter.verified
-          ? dataset.verified.toString() === filter.verified
-          : true) &&
-        (filter.rating ? dataset.rating >= parseFloat(filter.rating) : true)
+        (filter.category ? dataset.category === filter.category : true)
       );
     });
     setFilteredDatasets(filtered);
@@ -140,7 +119,7 @@ function DiscoverDataset() {
       {/* Dataset Cards */}
       <div className="grid md:grid-cols-3 gap-6">
         {filteredDatasets.map((dataset) => (
-          <DatasetItem dataset={dataset} key={dataset.id} />
+          <DatasetItem dataset={dataset} key={dataset.cid} />
         ))}
       </div>
 
