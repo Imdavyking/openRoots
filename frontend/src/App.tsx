@@ -1,4 +1,5 @@
 import "./App.css";
+import "./utils/polyfill"; 
 import "@tomo-inc/tomo-evm-kit/styles.css";
 import Router from "./router";
 import { BrowserRouter } from "react-router-dom";
