@@ -90,35 +90,42 @@ const RoyaltiesPage = () => {
         setStatus("❌ No datasets found. Please upload a dataset first.");
         return;
       }
-      setStatus("⏳ Collecting royalties...");
-      await client.groupClient.collectRoyalties({
-        groupIpId: groupId!,
-        currencyToken: WIP_TOKEN_ADDRESS,
-      });
-      setRoyalties("Royalties collected successfully.");
-      setStatus("✅ Royalties collected");
 
-      setStatus("⏳ Checking claimable rewards...");
+      try {
+        setStatus("⏳ Collecting royalties...");
+        await client.groupClient.collectRoyalties({
+          groupIpId: groupId!,
+          currencyToken: WIP_TOKEN_ADDRESS,
+        });
+        setRoyalties("Royalties collected successfully.");
+        setStatus("✅ Royalties collected");
+        setStatus("⏳ Checking claimable rewards...");
+      } catch (_) {}
+
+      const memberIpIds = datasets.map(
+        (dataset) => dataset.ipId as `0x${string}`
+      );
 
       const rewardInfo = await client.groupClient.getClaimableReward({
         groupIpId: groupId!,
         currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: datasets.map((dataset) => dataset.ipId as `0x${string}`),
+        memberIpIds,
       });
 
-      console.log("Reward Info:", rewardInfo);
+      const totalRewards = rewardInfo.reduce(
+        (acc: bigint, curr: bigint) => acc + BigInt(curr),
+        BigInt(0)
+      );
 
-      //   //   const amount = rewardInfo[0]? || "0";
-      //   const amount = "0";
-      //   setRewards(`${formatEth(amount)} WIP`);
-      //   setStatus("✅ Claimable rewards fetched");
+      setRewards(`Total Claimable Rewards: ${formatEth(totalRewards)} WIP`);
+      setStatus("✅ Claimable rewards fetched");
 
-      //   setStatus("⏳ Claiming rewards...");
-      //   const claimResponse = await client.groupClient.claimReward({
-      //     groupIpId: groupId!,
-      //     currencyToken: WIP_TOKEN_ADDRESS,
-      //     memberIpIds: [memberIpId],
-      //   });
+      setStatus("⏳ Claiming rewards...");
+      const claimResponse = await client.groupClient.claimReward({
+        groupIpId: groupId!,
+        currencyToken: WIP_TOKEN_ADDRESS,
+        memberIpIds,
+      });
 
       setClaimed("Rewards claimed successfully.");
       setStatus("🎉 Rewards claimed");
@@ -137,7 +144,9 @@ const RoyaltiesPage = () => {
       </h1>
 
       {isClaimingRewards ? (
-        <FaSpinner className="animate-spin  text-3xl" />
+        <div className="w-full flex justify-center items-center py-3 rounded-xl bg-blue-600">
+          <FaSpinner className="animate-spin text-white text-2xl" />
+        </div>
       ) : (
         <button
           onClick={handleCollectAndClaim}
