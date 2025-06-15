@@ -5,10 +5,10 @@ import {
   getAllDatasets,
 } from "../controllers/dataset.controller";
 
-const router = express.Router();
+const datasetRoutes = express.Router();
 
-router.post("/dataset", saveDataset);
-router.get("/dataset", getAllDatasets);
-router.get("/dataset/:address", getDatasetsByAddress);
+datasetRoutes.post("/", saveDataset);
+datasetRoutes.get("/", getAllDatasets);
+datasetRoutes.get("/:address", getDatasetsByAddress);
 
-export default router;
+export default datasetRoutes;

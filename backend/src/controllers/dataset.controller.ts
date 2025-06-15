@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import DatasetModel from "../models/dataset.model";
 import logger from "../config/logger";
+import { datasetValidationSchema } from "../validation/dataset.validation";
 
 /**
  * Save a dataset to MongoDB
@@ -8,18 +9,14 @@ import logger from "../config/logger";
  */
 export const saveDataset = async (req: Request, res: Response) => {
   try {
-    const dataset = req.body;
+    const { error, value } = datasetValidationSchema.validate(req.body);
 
-    if (
-      !dataset ||
-      !dataset.cid ||
-      !dataset.creator ||
-      !dataset.address ||
-      !dataset.groupId
-    ) {
-      res.status(400).json({ error: "Missing required fields" });
+    if (error) {
+      res.status(400).json({ error: error.details[0].message });
       return;
     }
+
+    const dataset = value;
 
     const saved = await DatasetModel.findOneAndUpdate(
       { cid: dataset.cid },

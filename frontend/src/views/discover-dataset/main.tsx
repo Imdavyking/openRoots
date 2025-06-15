@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { getAllDatasets } from "../../services/blockchain.services";
+import axiosBackend from "../../services/axios.config.services";
 import { ethers } from "ethers";
 import { FaSpinner } from "react-icons/fa";
 import DatasetItem from "./item";
 import { DatasetInfo } from "../../types/dataset.type";
+import axios from "axios";
 
 // Sample datasets for demo purposes
 
@@ -22,30 +23,13 @@ function DiscoverDataset() {
   const getUserDatasets = async () => {
     try {
       setIsGettingDatasets(true);
-      const datasets = await getAllDatasets();
-      const transformedDatasets = datasets.map((dataset) => ({
-        creator: dataset[0],
-        cid: dataset[1],
-        priceIntFIL: ethers.formatEther(dataset[2].toString()),
-        starsTotal: Number(dataset[3]),
-        starsCount: Number(dataset[4]),
-        rating:
-          Number(dataset[4]) == 0 ? 0 : Number(dataset[4]) / Number(dataset[3]),
-        downloads: Number(dataset[5]),
-        createdAt: Number(dataset[6]),
-        createdAtReadable: new Date(Number(dataset[6]) * 1000).toLocaleString(),
-        category: categories[Number(dataset[7])],
-        name: dataset[8],
-        description: dataset[8],
-        preview: dataset[9],
-        id: dataset[10],
-        verified: true,
-        decryptionBlockNumber: Number(dataset[11]),
-      }));
+      const datasets = (await axiosBackend.get(
+        "/api/dataset"
+      )) as DatasetInfo[];
 
-      setDatasets(transformedDatasets);
+      setDatasets(datasets);
 
-      return transformedDatasets;
+      return datasets;
     } catch (error) {
     } finally {
       setIsGettingDatasets(false);

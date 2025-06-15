@@ -107,9 +107,9 @@ export default function UploadNow() {
       console.error("Error saving Group IP:", err.message);
     }
   };
-  const saveUserDataset = async (userAddress: string, dataset: DatasetInfo) => {
+  const saveUserDataset = async (dataset: DatasetInfo) => {
     try {
-      await axios.post("/api/dataset", { dataset });
+      await axios.post("/api/dataset", dataset);
     } catch (err) {
       console.error("Error saving Group IP:", err.message);
     }
@@ -305,7 +305,7 @@ export default function UploadNow() {
         ipId: mintIpResponse.ipId!,
       };
 
-      await saveUserDataset(userAddress, datasetInfo);
+      await saveUserDataset(datasetInfo);
 
       toast.success("✅ Dataset uploaded successfully!");
 
