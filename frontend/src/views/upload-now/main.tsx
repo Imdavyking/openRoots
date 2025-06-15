@@ -107,6 +107,13 @@ export default function UploadNow() {
       console.error("Error saving Group IP:", err.message);
     }
   };
+  const saveUserDataset = async (userAddress: string, dataset: DatasetInfo) => {
+    try {
+      await axios.post("/api/dataset", { dataset });
+    } catch (err) {
+      console.error("Error saving Group IP:", err.message);
+    }
+  };
 
   const handleUpload = async () => {
     if (!file) return;
@@ -276,11 +283,12 @@ export default function UploadNow() {
           }
         );
 
-      console.log("License Added", mintIpResponse);
+      toast.success("✅ Dataset metadata uploaded successfully!");
 
       // save dataset info to database
       const datasetInfo: DatasetInfo = {
         creator: creatorName,
+        address: (wallet?.account?.address as `0x${string}`) || "",
         cid: ipResponse.data.ipfsUrl.split("/").pop(),
         groupId: groupId,
         createdAt: Math.trunc(new Date().getTime() / 1000),
@@ -294,9 +302,12 @@ export default function UploadNow() {
             ? csvPreviewRows
             : JSON.stringify(csvPreviewRows),
         preview: csvImage!,
+        ipId: mintIpResponse.ipId!,
       };
 
-      console.log("Dataset Info:", datasetInfo);
+      await saveUserDataset(userAddress, datasetInfo);
+
+      toast.success("✅ Dataset uploaded successfully!");
 
       // /// For buyers ///
       // const mintResponse = await client.license.mintLicenseTokens({

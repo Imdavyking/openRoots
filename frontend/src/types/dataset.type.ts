@@ -1,5 +1,6 @@
 export type DatasetInfo = {
   creator: string;
+  address: string;
   cid: string;
   groupId: string;
   createdAt: number;
@@ -7,4 +8,5 @@ export type DatasetInfo = {
   name: string;
   description: string;
   preview: string;
+  ipId: string;
 };

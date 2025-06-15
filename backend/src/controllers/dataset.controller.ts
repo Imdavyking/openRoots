@@ -10,7 +10,13 @@ export const saveDataset = async (req: Request, res: Response) => {
   try {
     const dataset = req.body;
 
-    if (!dataset || !dataset.cid || !dataset.creator) {
+    if (
+      !dataset ||
+      !dataset.cid ||
+      !dataset.creator ||
+      !dataset.address ||
+      !dataset.groupId
+    ) {
       res.status(400).json({ error: "Missing required fields" });
       return;
     }
@@ -34,23 +40,23 @@ const queryDatasets = async (filter = {}) => {
 
 /**
  * Get all datasets by creator address
- * @route GET /api/dataset/creator/:creator
+ * @route GET /api/dataset/:address
  */
-export const getDatasetsByCreator = async (req: Request, res: Response) => {
+export const getDatasetsByAddress = async (req: Request, res: Response) => {
   try {
-    const creator = req.params.creator?.toLowerCase();
+    const address = req.params.address;
 
-    if (!creator) {
-      res.status(400).json({ error: "Creator address is required" });
+    if (!address) {
+      res.status(400).json({ error: "address is required" });
       return;
     }
 
-    const datasets = await queryDatasets({ creator });
+    const datasets = await queryDatasets({ address });
 
     res.status(200).json(datasets);
   } catch (err: any) {
-    logger.error("Error fetching creator datasets:", err.message);
-    res.status(500).json({ error: "Failed to fetch creator datasets" });
+    logger.error("Error fetching address datasets:", err.message);
+    res.status(500).json({ error: "Failed to fetch creataddressor datasets" });
   }
 };
 
