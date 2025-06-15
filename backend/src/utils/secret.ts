@@ -26,6 +26,7 @@ export const secret: {
       "PORT",
       "FRONTEND_URL",
       "PINATA_JWT",
+      "MONGO_URI",
     ];
 
     const loadedSecrets: Record<string, string> = {};

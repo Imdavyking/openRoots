@@ -1,5 +1,3 @@
-
-
 import mongoose from "mongoose";
 const DatasetSchema = new mongoose.Schema({
   creator: { type: String, required: true },
@@ -11,5 +9,4 @@ const DatasetSchema = new mongoose.Schema({
   preview: { type: String, required: true },
 });
 
-const Dataset = mongoose.model("Dataset", DatasetSchema);
-export default Dataset;
+export default mongoose.model("Dataset", DatasetSchema);

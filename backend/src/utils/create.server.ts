@@ -11,6 +11,8 @@ import { allowedOrigins } from "./constants";
 import { JWT_SECRET_KEY } from "../middlewares/auth";
 import csvRoutes from "../routes/csv.routes";
 import jsonRoutes from "../routes/json-upload.routes";
+import userGroupModel from "../models/user-group.model";
+import userGroupRoutes from "../routes/user-group.routes";
 
 dotenv.config();
 const app = express();
@@ -70,6 +72,7 @@ app.get("/", (req: Request, res: Response) => {
 // Routes
 app.use("/api/upload-csv", csvRoutes);
 app.use("/api/upload-json", jsonRoutes);
+app.use("/api/user-group", userGroupRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {

@@ -17,6 +17,7 @@ services:
       - FRONTEND_URL
       - JWT_SECRET
       - PINATA_JWT
+      - MONGO_URI
     environment:
       - FRONTEND_URL=http://localhost:3000
     healthcheck:
@@ -84,7 +85,9 @@ secrets:
     file: ./backend/secrets/JWT_SECRET
   PINATA_JWT:
     file: ./backend/secrets/PINATA_JWT
-    
+  MONGO_URI:
+    file: ./backend/secrets/MONGO_URI
+
 volumes:
   mongodb-data:
   redis-data:
