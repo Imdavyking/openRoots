@@ -3,7 +3,9 @@ import { useWalletClient } from "wagmi";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
 import { useStory } from "../../context/AppContext";
 import { getUserGroupId } from "../upload-now/main";
-
+import axiosBackend from "../../services/axios.config.services";
+import { DatasetInfo } from "../../types/dataset.type";
+import { data } from "react-router-dom";
 type Props = {
   groupId: `0x${string}`;
   wipTokenAddress: `0x${string}`;
@@ -16,9 +18,30 @@ const RoyaltiesPage = () => {
   const [royalties, setRoyalties] = useState<null | string>(null);
   const [rewards, setRewards] = useState<null | string>(null);
   const [claimed, setClaimed] = useState<null | string>(null);
+  const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
   const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
   const [groupId, setGroupId] = useState<`0x${string}` | null>();
+
+  const getUserGroupDatasetIps = async () => {
+    try {
+      if (!wallet || !wallet.account) {
+        setStatus("❌ Please connect your wallet first.");
+        return [];
+      }
+      setStatus("⏳ Fetching datasets...");
+      const userAddress = wallet?.account?.address || "";
+      const response = await axiosBackend.get(`/api/dataset/${userAddress}`);
+      const datasets = response.data;
+      console.log("Fetched datasets:", datasets);
+      setDatasets(datasets);
+      //  /api/dataset/:address
+      setStatus("✅ Datasets fetched successfully.");
+    } catch (error) {
+      console.error("Error fetching datasets:", error);
+      return [];
+    }
+  };
 
   useEffect(() => {
     if (!wallet || !wallet.account) {
@@ -27,6 +50,7 @@ const RoyaltiesPage = () => {
     }
     setStatus("⏳ Fetching group ID...");
     const userAddress = wallet?.account?.address || "";
+    getUserGroupDatasetIps();
     getUserGroupId(userAddress)
       .then((id) => {
         console.log("Group ID:", id);
@@ -59,6 +83,11 @@ const RoyaltiesPage = () => {
         setStatus("❌ Group ID not found. Please try again later.");
         return;
       }
+
+      if (datasets.length == 0) {
+        setStatus("❌ No datasets found. Please upload a dataset first.");
+        return;
+      }
       setStatus("⏳ Collecting royalties...");
       await client.groupClient.collectRoyalties({
         groupIpId: groupId!,
@@ -68,10 +97,11 @@ const RoyaltiesPage = () => {
       setStatus("✅ Royalties collected");
 
       setStatus("⏳ Checking claimable rewards...");
+
       const rewardInfo = await client.groupClient.getClaimableReward({
         groupIpId: groupId!,
         currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: [memberIpId],
+        memberIpIds: datasets.map((dataset) => dataset.ipId as `0x${string}`),
       });
 
       console.log("Reward Info:", rewardInfo);
@@ -131,6 +161,36 @@ const RoyaltiesPage = () => {
         <div className="bg-green-100 p-4 rounded-xl">
           <h2 className="text-lg font-semibold text-green-800">✅ Claimed</h2>
           <p className="text-green-700 mt-1">{claimed}</p>
+        </div>
+      )}
+
+      {datasets.length > 0 && (
+        <div className="space-y-4 mt-8">
+          <h2 className="text-xl font-semibold text-gray-800">
+            📦 Your Datasets
+          </h2>
+          {datasets.map((dataset) => (
+            <div
+              key={dataset.cid}
+              className="bg-white border rounded-xl shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition"
+            >
+              <img
+                src={dataset.preview}
+                alt={dataset.name}
+                className="w-16 h-16 object-cover rounded-lg"
+              />
+              <div className="flex-1">
+                <h3 className="text-md font-bold text-gray-800">
+                  {dataset.name}
+                </h3>
+
+                <div className="text-xs text-gray-400 mt-1">
+                  Group ID: {dataset.groupId.slice(0, 6)}...
+                  {dataset.groupId.slice(-4)}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
