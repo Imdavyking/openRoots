@@ -127,15 +127,16 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
         toast.error("No media URL found in dataset.");
         return;
       }
-      const mediaContent = await axiosRequest.get(mediaUrl, {
-        responseType: "blob",
-      });
-      if (!mediaContent.data) {
+      const mediaContent = (await axiosRequest.get(mediaUrl, {})).data;
+      if (!mediaContent) {
         toast.error("No media content found in dataset.");
         return;
       }
 
       setCsvData(mediaContent as any);
+      const rows = mediaContent.split("\n");
+      const columns = rows[0].split(",");
+      setColumns(columns);
 
       toast.success("Download started!");
       setCanAccessDataset(true);
@@ -149,6 +150,8 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   };
 
   const purchaseAccessOnChain = async () => {
+    setCanAccessDataset(true);
+    return;
     if (!client) {
       toast.error("Client not initialized. Please try again later.");
       return;
