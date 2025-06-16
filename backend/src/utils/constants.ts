@@ -6,5 +6,6 @@ export const allowedOrigins = [
   new URL("http://localhost:5173").origin,
   new URL("http://localhost:5174").origin,
   new URL("http://localhost:3000").origin,
+  new URL("https://openroots.vercel.app/").origin,
   new URL(FRONTEND_URL!).origin,
 ];
