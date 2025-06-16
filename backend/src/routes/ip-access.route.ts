@@ -6,7 +6,7 @@ import {
 
 const router = express.Router();
 
-router.get("/access-group/ip/has/:ipId/:userAddress", checkUserAccessToIp);
-router.post("/access-group/ip/grant", grantUserAccessToIp);
+router.get("/ip/has/:ipId/:userAddress", checkUserAccessToIp);
+router.post("/ip/grant", grantUserAccessToIp);
 
 export default router;
