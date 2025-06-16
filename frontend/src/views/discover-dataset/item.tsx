@@ -33,10 +33,11 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       setHaveGroupLicense(false);
       return;
     }
-    const userCanDownload = await axiosBackend.get(
+    const userGroupAccess = await axiosBackend.get(
       `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
     );
-    if (userCanDownload.data.hasAccess) {
+    console.log(userGroupAccess.data);
+    if (userGroupAccess.data.hasAccess) {
       setHaveGroupLicense(true);
       return;
     }
@@ -48,10 +49,12 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       setCanAccessDataset(false);
       return;
     }
-    const userCanDownload = await axiosBackend.get(
+    const ipAcess = await axiosBackend.get(
       `/api/access-group/ip/${dataset.ipId}/has/${wallet.account.address}`
     );
-    if (userCanDownload.data.hasAccess) {
+
+    console.log(ipAcess.data);
+    if (ipAcess.data.hasAccess) {
       setCanAccessDataset(true);
       return;
     }
