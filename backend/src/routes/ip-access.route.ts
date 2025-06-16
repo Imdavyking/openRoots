@@ -6,7 +6,7 @@ import {
 
 const ipAccessRoutes = express.Router();
 
-ipAccessRoutes.get("/ip/has/:ipId/:userAddress", checkUserAccessToIp);
+ipAccessRoutes.get("/ip/:ipId/has/:userAddress", checkUserAccessToIp);
 ipAccessRoutes.post("/ip/grant", grantUserAccessToIp);
 
 export default ipAccessRoutes;

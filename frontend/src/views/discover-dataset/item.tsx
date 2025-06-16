@@ -26,8 +26,6 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
 
-  // "/access-group/ip/:ipId/has/:userAddress"
-
   const hasGroupLicense = async () => {
     if (!wallet || !wallet.account) {
       setHaveGroupLicense(false);
