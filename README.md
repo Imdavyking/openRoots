@@ -60,7 +60,7 @@ AI is only as good as the data it learns from. OpenRoots ensures:
 
 ## 🌐 Integrations
 
-- [Story Protocol](https://storyprotocol.xyz) — IP and licensing registry
+- [Story Protocol](https://story.foundation) — IP and licensing registry
 - [IPFS](https://ipfs.tech) — Distributed storage
 - [`@tomo-inc/tomo-evm-kit`](https://www.npmjs.com/package/@tomo-inc/tomo-evm-kit) — Smart wallet connectivity and programmable sessions
 
