@@ -119,6 +119,12 @@ const RoyaltiesPage = () => {
         BigInt(0)
       );
 
+      const vaultAddress = await client.royalty.getRoyaltyVaultAddress(
+        groupId!
+      );
+
+      console.log("Vault Address:", vaultAddress);
+
       setRewards(`Total Claimable Rewards: ${formatEth(totalRewards)} WIP`);
       setStatus("✅ Claimable rewards fetched");
 
