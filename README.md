@@ -33,8 +33,8 @@ AI is only as good as the data it learns from. OpenRoots ensures:
 1. Clone the repo:
 
    ```bash
-   git clone https://github.com/your-org/openroots.git
-   cd openroots
+   git clone https://github.com/Imdavyking/openRoots
+   cd openRoots
    ```
 
 2. Install dependencies:
