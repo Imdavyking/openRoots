@@ -26,6 +26,8 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
 
+  // "/access-group/ip/:ipId/has/:userAddress"
+
   const hasGroupLicense = async () => {
     if (!wallet || !wallet.account) {
       setHaveGroupLicense(false);
@@ -205,16 +207,27 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
         amount: ethers.parseEther("0.002"),
       });
 
-      const response = await axiosBackend.post("/api/access-group/add", {
-        groupId: dataset.groupId,
-        userAddress: wallet.account.address,
-        ipId: dataset.ipId,
-      });
+      const [accessGroup, IpAccess] = await Promise.all([
+        axiosBackend.post("/api/access-group/add", {
+          groupId: dataset.groupId,
+          userAddress: wallet.account.address,
+          ipId: dataset.ipId,
+        }),
+        axiosBackend.post("/api/access-group/ip/grant", {
+          ipId: dataset.ipId,
+          userAddress: wallet.account.address,
+        }),
+      ]);
 
-      if (response.status !== 200) {
+      if (accessGroup.status !== 200) {
         throw new Error("Failed to add user to access group");
       }
-      console.log("User added to access group:", response.data);
+
+      if (IpAccess.status !== 200) {
+        throw new Error("Failed to grant user access to IP");
+      }
+      console.log("User added to access group:", accessGroup.data);
+      console.log("User granted access to IP:", IpAccess.data);
 
       toast.success("Access purchased successfully!");
       setCanAccessDataset(true);
@@ -229,6 +242,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
 
   useEffect(() => {
     hasGroupLicense();
+    checkIPAccess();
   }, [dataset]);
 
   return (
