@@ -50,7 +50,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       return;
     }
     const ipAcess = await axiosBackend.get(
-      `/api/access-group/ip/${dataset.ipId}/has/${wallet.account.address}`
+      `/api/ip-access/ip/${dataset.ipId}/has/${wallet.account.address}`
     );
 
     console.log(ipAcess.data);
@@ -216,7 +216,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
           userAddress: wallet.account.address,
           ipId: dataset.ipId,
         }),
-        axiosBackend.post("/api/access-group/ip/grant", {
+        axiosBackend.post("/api/ip-access/ip/grant", {
           ipId: dataset.ipId,
           userAddress: wallet.account.address,
         }),

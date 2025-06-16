@@ -14,6 +14,7 @@ import jsonRoutes from "../routes/json-upload.route";
 import userGroupRoutes from "../routes/user-group.route";
 import datasetRoutes from "../routes/dataset.route";
 import accessGroupRoutes from "../routes/access-group.route";
+import ipAccessRoutes from "../routes/ip-access.route";
 
 dotenv.config();
 const app = express();
@@ -76,6 +77,7 @@ app.use("/api/upload-json", jsonRoutes);
 app.use("/api/user-group", userGroupRoutes);
 app.use("/api/dataset", datasetRoutes);
 app.use("/api/access-group", accessGroupRoutes);
+app.use("/api/ip-access", ipAccessRoutes);
 
 // Error handling middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
