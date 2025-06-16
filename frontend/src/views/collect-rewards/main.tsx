@@ -136,7 +136,7 @@ const RoyaltiesPage = () => {
       const claimResponse = await client.groupClient.claimReward({
         groupIpId: groupId!,
         currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds: ["0x5f3D7833824d6Ba8Cc14F1F6Eb549138509ECe46"],
+        memberIpIds,
       });
 
       console.log("Claim Response:", claimResponse);
