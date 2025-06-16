@@ -6,6 +6,7 @@ import { getUserGroupId } from "../upload-now/main";
 import axiosBackend from "../../services/axios.config.services";
 import { DatasetInfo } from "../../types/dataset.type";
 import { FaSpinner } from "react-icons/fa";
+import { ethers } from "ethers";
 type Props = {
   groupId: `0x${string}`;
   wipTokenAddress: `0x${string}`;
@@ -71,6 +72,8 @@ const RoyaltiesPage = () => {
   const handleCollectAndClaim = async () => {
     try {
       setIsClaimingRewards(true);
+      setRewards(null);
+      setRoyalties(null);
       if (!wallet) {
         setStatus("❌ Please connect your wallet first.");
         return;
@@ -102,9 +105,17 @@ const RoyaltiesPage = () => {
         setStatus("⏳ Checking claimable rewards...");
       } catch (_) {}
 
-      const memberIpIds = datasets.map(
-        (dataset) => dataset.ipId as `0x${string}`
-      );
+      const memberIpIds: `0x${string}`[] = [];
+
+      for (const dataset of datasets) {
+        const ipId = dataset.ipId as `0x${string}`;
+        const vault = await client.royalty.getRoyaltyVaultAddress(ipId);
+        if (vault && vault.toLowerCase() !== ethers.ZeroAddress) {
+          memberIpIds.push(dataset.ipId as `0x${string}`);
+        }
+      }
+
+      console.log("Member IP IDs:", memberIpIds);
 
       const rewardInfo = await client.groupClient.getClaimableReward({
         groupIpId: groupId!,
@@ -119,6 +130,14 @@ const RoyaltiesPage = () => {
         BigInt(0)
       );
 
+      const vaultAddress = await client.royalty.getRoyaltyVaultAddress(
+        "0x5f3D7833824d6Ba8Cc14F1F6Eb549138509ECe46"
+      );
+
+      console.log({ memberIpIds });
+
+      console.log("Vault Address:", vaultAddress);
+
       setRewards(`Total Claimable Rewards: ${formatEth(totalRewards)} WIP`);
       setStatus("✅ Claimable rewards fetched");
 
@@ -126,8 +145,10 @@ const RoyaltiesPage = () => {
       const claimResponse = await client.groupClient.claimReward({
         groupIpId: groupId!,
         currencyToken: WIP_TOKEN_ADDRESS,
-        memberIpIds,
+        memberIpIds: ["0x5f3D7833824d6Ba8Cc14F1F6Eb549138509ECe46"],
       });
+
+      console.log("Claim Response:", claimResponse);
 
       setClaimed("Rewards claimed successfully.");
       setStatus("🎉 Rewards claimed");

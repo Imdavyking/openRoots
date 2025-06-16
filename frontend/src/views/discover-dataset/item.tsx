@@ -5,10 +5,7 @@ import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axiosRequest, { AxiosError } from "axios";
-import {
-  LICENSE_TERMS_ID,
-  ML_URL,
-} from "../../utils/constants.js";
+import { LICENSE_TERMS_ID, ML_URL } from "../../utils/constants.js";
 import axiosBackend from "../../services/axios.config.services";
 import { DatasetInfo } from "../../types/dataset.type.ts";
 import { WIP_TOKEN_ADDRESS } from "@story-protocol/core-sdk";
@@ -33,13 +30,13 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       setCanAccessDataset(false);
       return;
     }
-    const userCanDownload = await axiosBackend.get(
-      `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
-    );
-    if (userCanDownload.data.hasAccess) {
-      setCanAccessDataset(true);
-      return;
-    }
+    // const userCanDownload = await axiosBackend.get(
+    //   `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
+    // );
+    // if (userCanDownload.data.hasAccess) {
+    //   setCanAccessDataset(true);
+    //   return;
+    // }
     setCanAccessDataset(false);
   };
 
@@ -172,6 +169,16 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
         maxMintingFee: BigInt(0),
         maxRevenueShare: 100,
       });
+
+      await client.license.mintLicenseTokens({
+        licenseTermsId: LICENSE_TERMS_ID,
+        licensorIpId: dataset.ipId as `0x${string}`,
+        amount: 1,
+        maxMintingFee: BigInt(0),
+        maxRevenueShare: 100,
+      });
+
+      console.log({ ipId: dataset.ipId, groupId: dataset.groupId });
       toast.success("License minted successfully!");
 
       await client.royalty.payRoyaltyOnBehalf({
