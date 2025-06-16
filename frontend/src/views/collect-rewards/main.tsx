@@ -129,6 +129,14 @@ const RoyaltiesPage = () => {
         BigInt(0)
       );
 
+      if (totalRewards === BigInt(0)) {
+        setRewards("No claimable rewards found.");
+        setStatus("✅ No claimable rewards found.");
+        setClaimed(null);
+        setIsClaimingRewards(false);
+        return;
+      }
+
       setRewards(`Total Claimable Rewards: ${formatEth(totalRewards)} WIP`);
       setStatus("✅ Claimable rewards fetched");
 
