@@ -129,14 +129,6 @@ const RoyaltiesPage = () => {
         BigInt(0)
       );
 
-      const vaultAddress = await client.royalty.getRoyaltyVaultAddress(
-        "0x5f3D7833824d6Ba8Cc14F1F6Eb549138509ECe46"
-      );
-
-      console.log({ memberIpIds });
-
-      console.log("Vault Address:", vaultAddress);
-
       setRewards(`Total Claimable Rewards: ${formatEth(totalRewards)} WIP`);
       setStatus("✅ Claimable rewards fetched");
 
