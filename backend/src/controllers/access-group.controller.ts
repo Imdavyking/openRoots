@@ -48,6 +48,13 @@ export const getGroupMembers = async (req: Request, res: Response) => {
   }
 };
 
+// `/api/access-group/ip/${dataset.ipId}/has/${wallet.account.address}`
+/**
+ * Check if an address has access to a dataset IP
+ * @route GET /api/access-group/ip/:ipId/has/:userAddress
+ */
+
+
 /**
  * Check if an address has access to a group
  * @route GET /api/group/:groupId/has/:userAddress

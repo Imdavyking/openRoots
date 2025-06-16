@@ -14,6 +14,7 @@ import { useStory } from "../../context/AppContext";
 
 const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const [canAccessDataset, setCanAccessDataset] = useState(false);
+  const [haveGroupLicense, setHaveGroupLicense] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [inputRow, setInputRow] = useState({});
   const [prediction, setPrediction] = useState(null);
@@ -25,13 +26,28 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   const { data: wallet } = useWalletClient();
   const { txLoading, txHash, txName, client } = useStory();
 
-  const canAccessCall = async () => {
+  const hasGroupLicense = async () => {
+    if (!wallet || !wallet.account) {
+      setHaveGroupLicense(false);
+      return;
+    }
+    const userCanDownload = await axiosBackend.get(
+      `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
+    );
+    if (userCanDownload.data.hasAccess) {
+      setHaveGroupLicense(true);
+      return;
+    }
+    setHaveGroupLicense(false);
+  };
+
+  const checkIPAccess = async () => {
     if (!wallet || !wallet.account) {
       setCanAccessDataset(false);
       return;
     }
     const userCanDownload = await axiosBackend.get(
-      `/api/access-group/${dataset.groupId}/${dataset.ipId}/has/${wallet.account.address}`
+      `/api/access-group/ip/${dataset.ipId}/has/${wallet.account.address}`
     );
     if (userCanDownload.data.hasAccess) {
       setCanAccessDataset(true);
@@ -161,14 +177,15 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       }
       console.log(dataset);
       setIsLoading(true);
-
-      await client.license.mintLicenseTokens({
-        licenseTermsId: LICENSE_TERMS_ID,
-        licensorIpId: dataset.groupId as `0x${string}`,
-        amount: 1,
-        maxMintingFee: BigInt(0),
-        maxRevenueShare: 100,
-      });
+      if (!haveGroupLicense) {
+        await client.license.mintLicenseTokens({
+          licenseTermsId: LICENSE_TERMS_ID,
+          licensorIpId: dataset.groupId as `0x${string}`,
+          amount: 1,
+          maxMintingFee: BigInt(0),
+          maxRevenueShare: 100,
+        });
+      }
 
       await client.license.mintLicenseTokens({
         licenseTermsId: LICENSE_TERMS_ID,
@@ -211,7 +228,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
   };
 
   useEffect(() => {
-    canAccessCall();
+    hasGroupLicense();
   }, [dataset]);
 
   return (
