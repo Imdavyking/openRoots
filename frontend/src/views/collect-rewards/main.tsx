@@ -110,7 +110,7 @@ const RoyaltiesPage = () => {
         const ipId = dataset.ipId as `0x${string}`;
         const vault = await client.royalty.getRoyaltyVaultAddress(ipId);
         if (vault && vault.toLowerCase() !== ethers.ZeroAddress) {
-          memberIpIds.push(dataset.ipId as `0x${string}`);
+          memberIpIds.push(ipId);
         }
       }
 
