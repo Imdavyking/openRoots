@@ -101,7 +101,6 @@ const RoyaltiesPage = () => {
           currencyToken: WIP_TOKEN_ADDRESS,
         });
         setRoyalties("Royalties collected successfully.");
-        setStatus("✅ Royalties collected");
         setStatus("⏳ Checking claimable rewards...");
       } catch (_) {}
 

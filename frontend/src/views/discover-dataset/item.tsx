@@ -30,13 +30,13 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       setCanAccessDataset(false);
       return;
     }
-    // const userCanDownload = await axiosBackend.get(
-    //   `/api/access-group/${dataset.groupId}/has/${wallet.account.address}`
-    // );
-    // if (userCanDownload.data.hasAccess) {
-    //   setCanAccessDataset(true);
-    //   return;
-    // }
+    const userCanDownload = await axiosBackend.get(
+      `/api/access-group/${dataset.groupId}/${dataset.ipId}/has/${wallet.account.address}`
+    );
+    if (userCanDownload.data.hasAccess) {
+      setCanAccessDataset(true);
+      return;
+    }
     setCanAccessDataset(false);
   };
 
@@ -191,6 +191,7 @@ const DatasetItem = ({ dataset }: { dataset: DatasetInfo }) => {
       const response = await axiosBackend.post("/api/access-group/add", {
         groupId: dataset.groupId,
         userAddress: wallet.account.address,
+        ipId: dataset.ipId,
       });
 
       if (response.status !== 200) {
